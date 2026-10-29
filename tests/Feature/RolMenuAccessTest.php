@@ -73,7 +73,7 @@ class RolMenuAccessTest extends TestCase
 
         // Acciones clínicas de especialista denegadas a Bienestar (BPMN)
         $cita = Cita::first();
-        $derivacion = Derivacion::first();
+        $derivacion = Derivacion::whereHas('seguimientos')->first() ?? Derivacion::first();
 
         if ($cita) {
             $this->actingAs($this->bienestar)->post("/bienestar/citas/{$cita->id_cita}/confirmar")
@@ -195,7 +195,7 @@ class RolMenuAccessTest extends TestCase
         $caso = CasoBienestar::first();
         $solicitud = SolicitudApoyo::first();
         $cita = Cita::first();
-        $derivacion = Derivacion::first();
+        $derivacion = Derivacion::whereHas('seguimientos')->first() ?? Derivacion::first();
 
         // 1. Escritura en Casos -> 403
         $this->actingAs($this->admin)->get('/bienestar/casos/crear')->assertStatus(403);

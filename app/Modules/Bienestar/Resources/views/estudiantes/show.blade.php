@@ -234,11 +234,16 @@
         </div>
     </div>
 
-    <!-- 4. Actividades Deportivas (Base para Fase D) -->
+    <!-- 4. Actividades Deportivas (Fase D) -->
     <div class="col-lg-6" id="deportes-seccion">
         <div class="card shadow-sm border h-100">
             <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                 <h6 class="card-title mb-0 fw-bold text-dark">Actividades Deportivas</h6>
+                @can('gestionarDeportes', $estudiante)
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalDeporte">
+                        Inscribir disciplina
+                    </button>
+                @endcan
             </div>
             <div class="card-body p-3">
                 @if($estudiante->deportes->isNotEmpty())
@@ -246,12 +251,20 @@
                         @foreach($estudiante->deportes as $deporte)
                             <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>{{ $deporte->nombre }}</strong>
+                                    <strong class="text-dark">{{ $deporte->nombre }}</strong>
                                     <span class="text-muted ms-2">Nivel: {{ ucfirst($deporte->pivot->nivel) }}</span>
+                                    <span class="badge bg-{{ $deporte->pivot->disponible_seleccion ? 'primary' : 'secondary' }} ms-2">
+                                        {{ $deporte->pivot->disponible_seleccion ? 'Selección' : 'Formativo' }}
+                                    </span>
                                 </div>
-                                <span class="badge bg-{{ $deporte->pivot->disponible_seleccion ? 'primary' : 'secondary' }}">
-                                    {{ $deporte->pivot->disponible_seleccion ? 'Selección' : 'Formativo' }}
-                                </span>
+                                @can('gestionarDeportes', $estudiante)
+                                    <form action="{{ route('bienestar.estudiantes.deportes.eliminar', ['estudiante' => $estudiante->id_estudiante, 'deporte' => $deporte->id_deporte]) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de retirar esta disciplina deportiva del estudiante?');">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2" title="Retirar disciplina deportiva">
+                                            Quitar
+                                        </button>
+                                    </form>
+                                @endcan
                             </li>
                         @endforeach
                     </ul>
@@ -446,6 +459,66 @@
                     <div class="modal-footer py-2 bg-light">
                         <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-primary btn-sm">Asignar condición</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endcan
+
+@can('gestionarDeportes', $estudiante)
+    <!-- Modal Inscribir Deporte (Fase D) -->
+    <div class="modal fade" id="modalDeporte" tabindex="-1" aria-labelledby="modalDeporteLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border">
+                <form action="{{ route('bienestar.estudiantes.deportes.store', $estudiante->id_estudiante) }}" method="POST">
+                    @csrf
+                    <div class="modal-header py-3 bg-light">
+                        <h6 class="modal-title fw-bold text-dark" id="modalDeporteLabel">Inscribir Disciplina Deportiva</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body p-4 small">
+                        <div class="mb-3">
+                            <label for="id_deporte" class="form-label fw-semibold">Disciplina Deportiva</label>
+                            <select name="id_deporte" id="id_deporte" class="form-select form-select-sm @error('id_deporte') is-invalid @enderror" required>
+                                <option value="">Seleccione una disciplina deportiva...</option>
+                                @foreach($deportesCatalogo as $dep)
+                                    <option value="{{ $dep->id_deporte }}" {{ old('id_deporte') == $dep->id_deporte ? 'selected' : '' }}>
+                                        {{ $dep->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('id_deporte')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nivel" class="form-label fw-semibold">Nivel de Práctica</label>
+                            <select name="nivel" id="nivel" class="form-select form-select-sm @error('nivel') is-invalid @enderror" required>
+                                <option value="">Seleccione el nivel...</option>
+                                <option value="Principiante" {{ old('nivel') === 'Principiante' ? 'selected' : '' }}>Principiante</option>
+                                <option value="Intermedio" {{ old('nivel') === 'Intermedio' ? 'selected' : '' }}>Intermedio</option>
+                                <option value="Avanzado" {{ old('nivel') === 'Avanzado' ? 'selected' : '' }}>Avanzado</option>
+                            </select>
+                            @error('nivel')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="disponible_seleccion" id="disponible_seleccion" value="1" {{ old('disponible_seleccion', '1') ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold" for="disponible_seleccion">
+                                    Disponible para Selección Universitaria
+                                </label>
+                            </div>
+                            <div class="form-text small">Indica si el estudiante se encuentra apto y disponible para competir en representación de la UNT.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer py-2 bg-light">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Guardar inscripción</button>
                     </div>
                 </form>
             </div>

@@ -41,6 +41,8 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
                 Route::post('/estudiantes/{estudiante}/perfil-socioeconomico', [EstudianteController::class, 'guardarPerfil'])->whereNumber('estudiante')->name('estudiantes.perfil.store');
                 Route::post('/estudiantes/{estudiante}/condiciones', [EstudianteController::class, 'guardarCondicion'])->whereNumber('estudiante')->name('estudiantes.condiciones.store');
                 Route::post('/estudiantes/{estudiante}/condiciones/{tipo_condicion}/eliminar', [EstudianteController::class, 'eliminarCondicion'])->whereNumber('estudiante')->whereNumber('tipo_condicion')->name('estudiantes.condiciones.eliminar');
+                Route::post('/estudiantes/{estudiante}/deportes', [EstudianteController::class, 'inscribirDeporte'])->whereNumber('estudiante')->name('estudiantes.deportes.store');
+                Route::post('/estudiantes/{estudiante}/deportes/{deporte}/eliminar', [EstudianteController::class, 'desinscribirDeporte'])->whereNumber('estudiante')->whereNumber('deporte')->name('estudiantes.deportes.eliminar');
                 Route::post('/estudiantes/{estudiante}/eliminar', [EstudianteController::class, 'destroy'])->whereNumber('estudiante')->name('estudiantes.destroy');
             });
 

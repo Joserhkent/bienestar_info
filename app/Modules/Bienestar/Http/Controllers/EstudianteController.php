@@ -5,11 +5,14 @@ namespace App\Modules\Bienestar\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Bienestar\Http\Requests\GuardarCondicionEstudianteRequest;
 use App\Modules\Bienestar\Http\Requests\GuardarPerfilSocioeconomicoRequest;
+use App\Modules\Bienestar\Http\Requests\InscribirDeporteRequest;
 use App\Modules\Bienestar\Http\Requests\StoreEstudianteRequest;
 use App\Modules\Bienestar\Http\Requests\UpdateEstudianteRequest;
+use App\Modules\Bienestar\Models\Deporte;
 use App\Modules\Bienestar\Models\Estudiante;
 use App\Modules\Bienestar\Models\TipoCondicion;
 use App\Modules\Bienestar\Services\CondicionEstudianteService;
+use App\Modules\Bienestar\Services\DeporteEstudianteService;
 use App\Modules\Bienestar\Services\EstudianteService;
 use App\Modules\Bienestar\Services\PerfilSocioeconomicoService;
 use Illuminate\Http\RedirectResponse;
@@ -88,8 +91,9 @@ class EstudianteController extends Controller
         }
 
         $tiposCondicionCatalogo = TipoCondicion::orderBy('nombre')->get();
+        $deportesCatalogo = Deporte::orderBy('nombre')->get();
 
-        return view('bienestar::estudiantes.show', compact('estudiante', 'tiposCondicionCatalogo'));
+        return view('bienestar::estudiantes.show', compact('estudiante', 'tiposCondicionCatalogo', 'deportesCatalogo'));
     }
 
     /**
@@ -213,5 +217,47 @@ class EstudianteController extends Controller
 
         return redirect()->route('bienestar.estudiantes.index')
             ->with('success', 'Estudiante y cuenta asociada eliminados correctamente.');
+    }
+
+    /**
+     * Inscribe o actualiza la disciplina deportiva del estudiante (Fase D).
+     */
+    public function inscribirDeporte(InscribirDeporteRequest $request, int $id, DeporteEstudianteService $service): RedirectResponse
+    {
+        $estudiante = Estudiante::find($id);
+
+        if (!$estudiante) {
+            abort(404, 'Estudiante no encontrado.');
+        }
+
+        if ($request->user()->cannot('gestionarDeportes', $estudiante)) {
+            return back()->with('warning', 'No tiene permisos para gestionar actividades deportivas del estudiante.');
+        }
+
+        $service->inscribirOActualizar($estudiante, $request->validated());
+
+        return redirect()->route('bienestar.estudiantes.show', $estudiante->id_estudiante)
+            ->with('success', 'Disciplina deportiva registrada correctamente en el expediente.');
+    }
+
+    /**
+     * Retira la inscripción deportiva del estudiante (Fase D).
+     */
+    public function desinscribirDeporte(Request $request, int $id, int $idDeporte, DeporteEstudianteService $service): RedirectResponse
+    {
+        $estudiante = Estudiante::find($id);
+
+        if (!$estudiante) {
+            abort(404, 'Estudiante no encontrado.');
+        }
+
+        if ($request->user()->cannot('gestionarDeportes', $estudiante)) {
+            return back()->with('warning', 'No tiene permisos para retirar disciplinas deportivas.');
+        }
+
+        $service->desinscribirDeporte($estudiante, $idDeporte);
+
+        return redirect()->route('bienestar.estudiantes.show', $estudiante->id_estudiante)
+            ->with('success', 'Disciplina deportiva retirada del expediente del estudiante.');
     }
 }

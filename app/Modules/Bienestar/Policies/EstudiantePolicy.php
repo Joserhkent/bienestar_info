@@ -95,4 +95,13 @@ class EstudiantePolicy
     {
         return $user->rol?->nombre === 'Personal de Bienestar';
     }
+
+    /**
+     * Inscribir o retirar disciplinas deportivas formativas/competitivas:
+     * Exclusivo para Personal de Bienestar.
+     */
+    public function gestionarDeportes(Usuario $user, Estudiante $estudiante): bool
+    {
+        return $user->rol?->nombre === 'Personal de Bienestar';
+    }
 }
