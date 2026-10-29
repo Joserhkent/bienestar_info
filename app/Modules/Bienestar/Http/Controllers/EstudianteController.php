@@ -193,4 +193,25 @@ class EstudianteController extends Controller
         return redirect()->route('bienestar.estudiantes.show', $estudiante->id_estudiante)
             ->with('success', 'Condición removida del expediente del estudiante.');
     }
+
+    /**
+     * Elimina el registro del estudiante y su cuenta asociada en caso de error.
+     */
+    public function destroy(Request $request, int $id, EstudianteService $service): RedirectResponse
+    {
+        $estudiante = Estudiante::find($id);
+
+        if (!$estudiante) {
+            abort(404, 'Estudiante no encontrado.');
+        }
+
+        if ($request->user()->cannot('delete', $estudiante)) {
+            return back()->with('warning', 'No tiene permisos para eliminar estudiantes.');
+        }
+
+        $service->eliminarEstudiante($estudiante);
+
+        return redirect()->route('bienestar.estudiantes.index')
+            ->with('success', 'Estudiante y cuenta asociada eliminados correctamente.');
+    }
 }

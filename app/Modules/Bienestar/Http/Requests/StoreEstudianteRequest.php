@@ -17,7 +17,7 @@ class StoreEstudianteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'codigo_universitario' => ['required', 'string', 'max:10', Rule::unique(Estudiante::class, 'codigo_universitario')],
+            'codigo_universitario' => ['required', 'string', 'size:10', 'regex:/^[0-9]{10}$/', Rule::unique(Estudiante::class, 'codigo_universitario')],
             'dni'                  => ['required', 'string', 'size:8', 'regex:/^[0-9]{8}$/', Rule::unique(Estudiante::class, 'dni')],
             'nombres'              => ['required', 'string', 'max:80'],
             'apellidos'            => ['required', 'string', 'max:80'],
@@ -30,6 +30,25 @@ class StoreEstudianteRequest extends FormRequest
             'lugar_procedencia'    => ['required', 'string', 'max:100'],
             'ciclo_actual'         => ['required', 'integer', 'min:1', 'max:12'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $normalizarEspacios = fn (?string $v) => $v !== null ? preg_replace('/\s+/', ' ', trim($v)) : null;
+        $normalizarTitulo = fn (?string $v) => $v !== null ? mb_convert_case(mb_strtolower(preg_replace('/\s+/', ' ', trim($v)), 'UTF-8'), MB_CASE_TITLE, 'UTF-8') : null;
+        $soloDigitos = fn (?string $v) => $v !== null ? preg_replace('/\D/', '', $v) : null;
+
+        $this->merge([
+            'nombres'              => $normalizarTitulo($this->input('nombres')),
+            'apellidos'            => $normalizarTitulo($this->input('apellidos')),
+            'correo'               => $this->input('correo') !== null ? strtolower(trim($this->input('correo'))) : null,
+            'codigo_universitario' => $soloDigitos($this->input('codigo_universitario')),
+            'dni'                  => $soloDigitos($this->input('dni')),
+            'telefono'             => $soloDigitos($this->input('telefono')),
+            'direccion_actual'     => $normalizarEspacios($this->input('direccion_actual')),
+            'zona_procedencia'     => $normalizarEspacios($this->input('zona_procedencia')),
+            'lugar_procedencia'    => $normalizarEspacios($this->input('lugar_procedencia')),
+        ]);
     }
 
     public function messages(): array

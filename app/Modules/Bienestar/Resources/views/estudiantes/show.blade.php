@@ -21,6 +21,14 @@
                 Editar estudiante
             </a>
         @endcan
+        @can('delete', $estudiante)
+            <form action="{{ route('bienestar.estudiantes.destroy', $estudiante->id_estudiante) }}" method="POST" onsubmit="return confirm('¿Está seguro de eliminar este estudiante y su cuenta asociada?');" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    Eliminar
+                </button>
+            </form>
+        @endcan
     </div>
 </div>
 

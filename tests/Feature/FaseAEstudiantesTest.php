@@ -197,4 +197,106 @@ class FaseAEstudiantesTest extends TestCase
             $tempUser->delete();
         }
     }
+
+    public function test_student_text_fields_are_strictly_normalized_on_create_and_update(): void
+    {
+        $bienestar = $this->getUser('bienestar@unitru.edu.pe');
+
+        // Registro con texto caótico: mayúsculas mezcladas, espacios múltiples, tildes y eñes
+        $payloadCaotico = [
+            'codigo_universitario' => '  1022997788  ',
+            'dni'                  => ' 78 99 66 55 ',
+            'nombres'              => '  jOsÉ   ñAnDo   ',
+            'apellidos'            => '  gOnZáLeZ   pEñA  ',
+            'correo'               => '   ALUMNO.NORMALIZADO@UNITRU.EDU.PE   ',
+            'sexo'                 => 'M',
+            'fecha_nacimiento'     => '2004-06-10',
+            'telefono'             => ' 944 555 666 ',
+            'direccion_actual'     => '  Av.   América   Sur   1234  ',
+            'zona_procedencia'     => '  Sierra   ',
+            'lugar_procedencia'    => '  Otuzco  -   La   Libertad  ',
+            'ciclo_actual'         => 3,
+        ];
+
+        $response = $this->actingAs($bienestar)->post('/bienestar/estudiantes', $payloadCaotico);
+        $response->assertSessionDoesntHaveErrors();
+
+        $estudiante = Estudiante::with('usuario')->where('codigo_universitario', '1022997788')->firstOrFail();
+
+        // Verificaciones de normalización exacta
+        $this->assertEquals('José Ñando', $estudiante->nombres, 'Los nombres deben estar en Nombre Propio con tildes y eñes.');
+        $this->assertEquals('González Peña', $estudiante->apellidos, 'Los apellidos deben estar en Nombre Propio respetando caracteres especiales.');
+        $this->assertEquals('alumno.normalizado@unitru.edu.pe', $estudiante->usuario->correo, 'El correo debe estar en minúsculas y sin espacios.');
+        $this->assertEquals('1022997788', $estudiante->codigo_universitario, 'El código debe tener solo dígitos sin espacios.');
+        $this->assertEquals('78996655', $estudiante->dni, 'El DNI debe tener solo dígitos sin espacios.');
+        $this->assertEquals('944555666', $estudiante->telefono, 'El teléfono debe tener solo dígitos.');
+        $this->assertEquals('Av. América Sur 1234', $estudiante->direccion_actual, 'La dirección debe tener espacios colapsados.');
+        $this->assertEquals('Sierra', $estudiante->zona_procedencia);
+        $this->assertEquals('Otuzco - La Libertad', $estudiante->lugar_procedencia);
+
+        // Edición con todo en mayúsculas
+        $payloadUpdate = [
+            'codigo_universitario' => '1022997788',
+            'dni'                  => '78996655',
+            'nombres'              => 'MARÍA DE LOS ÁNGELES',
+            'apellidos'            => 'NUÑEZ CASTAÑEDA',
+            'correo'               => 'maria.nunez@unitru.edu.pe',
+            'sexo'                 => 'F',
+            'fecha_nacimiento'     => '2004-06-10',
+            'telefono'             => '944555666',
+            'direccion_actual'     => 'Calle Los Sauces 450',
+            'zona_procedencia'     => 'Costa',
+            'lugar_procedencia'    => 'Trujillo',
+            'ciclo_actual'         => 4,
+        ];
+
+        $respUpdate = $this->actingAs($bienestar)->post("/bienestar/estudiantes/{$estudiante->id_estudiante}", $payloadUpdate);
+        $respUpdate->assertSessionDoesntHaveErrors();
+
+        $estudiante->refresh();
+        $this->assertEquals('María De Los Ángeles', $estudiante->nombres);
+        $this->assertEquals('Nuñez Castañeda', $estudiante->apellidos);
+
+        // Limpieza
+        $usuario = $estudiante->usuario;
+        $estudiante->delete();
+        $usuario?->delete();
+    }
+
+    public function test_bienestar_can_delete_student_and_account(): void
+    {
+        $bienestar = $this->getUser('bienestar@unitru.edu.pe');
+        $admin = $this->getUser('admin@unitru.edu.pe');
+
+        // Registrar un estudiante de prueba
+        $payload = [
+            'codigo_universitario' => '1022112233',
+            'dni'                  => '71223344',
+            'nombres'              => 'Alumno Para Borrar',
+            'apellidos'            => 'Prueba Borrado',
+            'correo'               => 'borrar.alumno@unitru.edu.pe',
+            'sexo'                 => 'M',
+            'fecha_nacimiento'     => '2004-01-01',
+            'zona_procedencia'     => 'Costa',
+            'lugar_procedencia'    => 'Trujillo',
+            'ciclo_actual'         => 1,
+        ];
+
+        $this->actingAs($bienestar)->post('/bienestar/estudiantes', $payload);
+        $estudiante = Estudiante::where('codigo_universitario', '1022112233')->firstOrFail();
+        $idUsuario = $estudiante->id_usuario;
+
+        // Admin no puede eliminar -> 403 Forbidden por middleware de rol
+        $this->actingAs($admin)->post("/bienestar/estudiantes/{$estudiante->id_estudiante}/eliminar")
+            ->assertStatus(403);
+
+        // Bienestar sí puede eliminar
+        $responseDelete = $this->actingAs($bienestar)->post("/bienestar/estudiantes/{$estudiante->id_estudiante}/eliminar");
+        $responseDelete->assertRedirect(route('bienestar.estudiantes.index'));
+        $responseDelete->assertSessionHas('success');
+
+        // Verificar que ya no existe ni el estudiante ni su cuenta
+        $this->assertNull(Estudiante::find($estudiante->id_estudiante));
+        $this->assertNull(Usuario::find($idUsuario));
+    }
 }

@@ -93,4 +93,25 @@ class EstudianteService
             return $estudiante->fresh(['usuario']);
         });
     }
+
+    /**
+     * Elimina a un estudiante y su usuario de acceso en una transacción limpia.
+     */
+    public function eliminarEstudiante(Estudiante $estudiante): void
+    {
+        DB::transaction(function () use ($estudiante) {
+            $usuario = $estudiante->usuario;
+
+            // Eliminar registros dependientes
+            $estudiante->perfilSocioeconomico()?->delete();
+            DB::table('bienestar.estudiante_tipo_condicion')->where('id_estudiante', $estudiante->id_estudiante)->delete();
+            DB::table('bienestar.estudiante_deporte')->where('id_estudiante', $estudiante->id_estudiante)->delete();
+
+            $estudiante->delete();
+
+            if ($usuario) {
+                $usuario->delete();
+            }
+        });
+    }
 }

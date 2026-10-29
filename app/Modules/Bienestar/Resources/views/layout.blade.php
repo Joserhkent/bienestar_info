@@ -64,10 +64,10 @@
 </head>
 <body class="d-flex flex-column min-h-screen">
     <!-- Barra superior institucional -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-institutional">
-        <div class="container">
-            <a class="navbar-brand text-white fw-semibold" href="{{ route('bienestar.dashboard') }}">
-                Universidad Nacional de Trujillo <span class="fw-normal text-white-50">| Bienestar</span>
+    <nav class="navbar navbar-expand-xl navbar-dark navbar-institutional">
+        <div class="container-fluid px-3 px-lg-4">
+            <a class="navbar-brand text-white fw-semibold me-3" href="{{ route('bienestar.dashboard') }}">
+                UNT <span class="fw-normal text-white-50">| Bienestar</span>
             </a>
             
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
@@ -164,16 +164,17 @@
                     @endauth
                 </ul>
 
-                <ul class="navbar-nav ms-auto align-items-center">
+                <ul class="navbar-nav ms-auto align-items-center flex-row flex-xl-row gap-2 mt-2 mt-xl-0">
                     @auth
-                        <li class="nav-item me-3 text-white-50 small">
-                            <span class="text-white">{{ Auth::user()->correo }}</span>
-                            <span>({{ Auth::user()->rol->nombre ?? 'Usuario' }})</span>
+                        <li class="nav-item">
+                            <span class="badge bg-light text-dark fw-semibold px-2 py-1">
+                                {{ Auth::user()->rol->nombre ?? 'Usuario' }}
+                            </span>
                         </li>
                         <li class="nav-item">
                             <form action="{{ route('bienestar.logout') }}" method="POST" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-outline-light btn-sm py-1 px-3">
+                                <button type="submit" class="btn btn-outline-light btn-sm py-1 px-2">
                                     Salir
                                 </button>
                             </form>

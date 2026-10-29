@@ -88,10 +88,11 @@ class EstudiantePolicy
     }
 
     /**
-     * Eliminación deshabilitada por integridad y auditoría.
+     * Eliminación de estudiante y su cuenta:
+     * Exclusivo para Personal de Bienestar en caso de error de registro.
      */
     public function delete(Usuario $user, Estudiante $estudiante): bool
     {
-        return false;
+        return $user->rol?->nombre === 'Personal de Bienestar';
     }
 }

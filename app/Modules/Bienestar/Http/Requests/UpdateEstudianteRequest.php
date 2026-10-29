@@ -63,6 +63,25 @@ class UpdateEstudianteRequest extends FormRequest
         ];
     }
 
+    protected function prepareForValidation(): void
+    {
+        $normalizarEspacios = fn (?string $v) => $v !== null ? preg_replace('/\s+/', ' ', trim($v)) : null;
+        $normalizarTitulo = fn (?string $v) => $v !== null ? mb_convert_case(mb_strtolower(preg_replace('/\s+/', ' ', trim($v)), 'UTF-8'), MB_CASE_TITLE, 'UTF-8') : null;
+        $soloDigitos = fn (?string $v) => $v !== null ? preg_replace('/\D/', '', $v) : null;
+
+        $this->merge([
+            'nombres'              => $normalizarTitulo($this->input('nombres')),
+            'apellidos'            => $normalizarTitulo($this->input('apellidos')),
+            'correo'               => $this->input('correo') !== null ? strtolower(trim($this->input('correo'))) : null,
+            'codigo_universitario' => $soloDigitos($this->input('codigo_universitario')),
+            'dni'                  => $soloDigitos($this->input('dni')),
+            'telefono'             => $soloDigitos($this->input('telefono')),
+            'direccion_actual'     => $normalizarEspacios($this->input('direccion_actual')),
+            'zona_procedencia'     => $normalizarEspacios($this->input('zona_procedencia')),
+            'lugar_procedencia'    => $normalizarEspacios($this->input('lugar_procedencia')),
+        ]);
+    }
+
     public function messages(): array
     {
         return [
