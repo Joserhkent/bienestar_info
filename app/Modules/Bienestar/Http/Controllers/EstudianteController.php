@@ -3,10 +3,12 @@
 namespace App\Modules\Bienestar\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Bienestar\Http\Requests\GuardarPerfilSocioeconomicoRequest;
 use App\Modules\Bienestar\Http\Requests\StoreEstudianteRequest;
 use App\Modules\Bienestar\Http\Requests\UpdateEstudianteRequest;
 use App\Modules\Bienestar\Models\Estudiante;
 use App\Modules\Bienestar\Services\EstudianteService;
+use App\Modules\Bienestar\Services\PerfilSocioeconomicoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -122,5 +124,26 @@ class EstudianteController extends Controller
 
         return redirect()->route('bienestar.estudiantes.show', $estudiante->id_estudiante)
             ->with('success', 'Información del estudiante actualizada correctamente.');
+    }
+
+    /**
+     * Registra o actualiza el perfil socioeconómico del estudiante (Fase B).
+     */
+    public function guardarPerfil(GuardarPerfilSocioeconomicoRequest $request, int $id, PerfilSocioeconomicoService $service): RedirectResponse
+    {
+        $estudiante = Estudiante::find($id);
+
+        if (!$estudiante) {
+            abort(404, 'Estudiante no encontrado.');
+        }
+
+        if ($request->user()->cannot('gestionarPerfil', $estudiante)) {
+            return back()->with('warning', 'No tiene permisos para modificar el perfil socioeconómico.');
+        }
+
+        $service->guardarOActualizar($estudiante, $request->validated());
+
+        return redirect()->route('bienestar.estudiantes.show', $estudiante->id_estudiante)
+            ->with('success', 'Perfil socioeconómico guardado correctamente.');
     }
 }

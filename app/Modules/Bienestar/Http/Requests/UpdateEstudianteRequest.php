@@ -13,13 +13,21 @@ class UpdateEstudianteRequest extends FormRequest
     {
         $estudiante = $this->route('estudiante');
 
+        if (is_numeric($estudiante)) {
+            $estudiante = Estudiante::find($estudiante);
+        }
+
         return $this->user() && $estudiante instanceof Estudiante && $this->user()->can('update', $estudiante);
     }
 
     public function rules(): array
     {
-        /** @var Estudiante $estudiante */
         $estudiante = $this->route('estudiante');
+
+        if (is_numeric($estudiante)) {
+            $estudiante = Estudiante::find($estudiante);
+        }
+
         $idEstudiante = $estudiante ? $estudiante->id_estudiante : null;
         $idUsuario = $estudiante ? $estudiante->id_usuario : null;
 

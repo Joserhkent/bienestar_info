@@ -38,6 +38,7 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
                 Route::post('/estudiantes', [EstudianteController::class, 'store'])->name('estudiantes.store');
                 Route::get('/estudiantes/{estudiante}/editar', [EstudianteController::class, 'edit'])->whereNumber('estudiante')->name('estudiantes.edit');
                 Route::post('/estudiantes/{estudiante}', [EstudianteController::class, 'update'])->whereNumber('estudiante')->name('estudiantes.update');
+                Route::post('/estudiantes/{estudiante}/perfil-socioeconomico', [EstudianteController::class, 'guardarPerfil'])->whereNumber('estudiante')->name('estudiantes.perfil.store');
             });
 
             Route::get('/estudiantes/{estudiante}', [EstudianteController::class, 'show'])->whereNumber('estudiante')->name('estudiantes.show');

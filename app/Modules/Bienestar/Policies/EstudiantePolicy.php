@@ -52,6 +52,24 @@ class EstudiantePolicy
     }
 
     /**
+     * Crear o editar perfil socioeconómico:
+     * Exclusivo para Personal de Bienestar.
+     */
+    public function gestionarPerfil(Usuario $user, Estudiante $estudiante): bool
+    {
+        return $user->rol?->nombre === 'Personal de Bienestar';
+    }
+
+    /**
+     * Ver observación social confidencial:
+     * Exclusivo para Personal de Bienestar. El Administrador NO la ve.
+     */
+    public function verObservacionSocioeconomica(Usuario $user, Estudiante $estudiante): bool
+    {
+        return $user->rol?->nombre === 'Personal de Bienestar';
+    }
+
+    /**
      * Eliminación deshabilitada por integridad y auditoría.
      */
     public function delete(Usuario $user, Estudiante $estudiante): bool

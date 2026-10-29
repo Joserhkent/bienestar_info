@@ -94,11 +94,16 @@
         </div>
     </div>
 
-    <!-- 2. Perfil Socioeconómico (Base para Fase B) -->
+    <!-- 2. Perfil Socioeconómico (Fase B) -->
     <div class="col-lg-6" id="perfil-socioeconomico-seccion">
         <div class="card shadow-sm border h-100">
             <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                 <h6 class="card-title mb-0 fw-bold text-dark">Perfil Socioeconómico</h6>
+                @can('gestionarPerfil', $estudiante)
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalPerfil">
+                        {{ $estudiante->perfilSocioeconomico ? 'Actualizar perfil' : 'Registrar perfil' }}
+                    </button>
+                @endcan
             </div>
             <div class="card-body p-3">
                 @if($estudiante->perfilSocioeconomico)
@@ -129,14 +134,16 @@
                             <span class="text-muted d-block">Última Actualización</span>
                             <span>{{ $estudiante->perfilSocioeconomico->fecha_actualizacion ? $estudiante->perfilSocioeconomico->fecha_actualizacion->format('d/m/Y H:i') : '—' }}</span>
                         </div>
-                        @if((Auth::user()->rol->nombre ?? '') === 'Personal de Bienestar' && $estudiante->perfilSocioeconomico->observacion)
-                            <div class="col-12 border-top pt-2">
-                                <span class="text-muted d-block">Observación Social Confidencial</span>
-                                <div class="p-2 bg-light rounded text-dark">
-                                    {{ $estudiante->perfilSocioeconomico->observacion }}
+                        @can('verObservacionSocioeconomica', $estudiante)
+                            @if($estudiante->perfilSocioeconomico->observacion)
+                                <div class="col-12 border-top pt-2">
+                                    <span class="text-muted d-block small fw-semibold">Observación Social Confidencial</span>
+                                    <div class="p-2 bg-light rounded text-dark mt-1">
+                                        {{ $estudiante->perfilSocioeconomico->observacion }}
+                                    </div>
                                 </div>
-                            </div>
-                        @endif
+                            @endif
+                        @endcan
                     </div>
                 @else
                     <div class="text-center py-4 text-muted small">
@@ -214,4 +221,97 @@
         </div>
     </div>
 </div>
+
+@can('gestionarPerfil', $estudiante)
+    <!-- Modal Actualizar Perfil Socioeconómico -->
+    <div class="modal fade" id="modalPerfil" tabindex="-1" aria-labelledby="modalPerfilLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border">
+                <form action="{{ route('bienestar.estudiantes.perfil.store', $estudiante->id_estudiante) }}" method="POST">
+                    @csrf
+                    <div class="modal-header py-3 bg-light">
+                        <h6 class="modal-title fw-bold text-dark" id="modalPerfilLabel">Actualizar Perfil Socioeconómico</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body p-4 small">
+                        <div class="mb-3">
+                            <label for="clasificacion_sisfoh" class="form-label fw-semibold">Clasificación SISFOH <span class="text-danger">*</span></label>
+                            <select name="clasificacion_sisfoh" id="clasificacion_sisfoh" class="form-select form-select-sm" required>
+                                <option value="pobre_extremo" {{ old('clasificacion_sisfoh', $estudiante->perfilSocioeconomico->clasificacion_sisfoh ?? '') === 'pobre_extremo' ? 'selected' : '' }}>Pobreza Extrema</option>
+                                <option value="pobre" {{ old('clasificacion_sisfoh', $estudiante->perfilSocioeconomico->clasificacion_sisfoh ?? '') === 'pobre' ? 'selected' : '' }}>Pobreza No Extrema</option>
+                                <option value="no_pobre" {{ old('clasificacion_sisfoh', $estudiante->perfilSocioeconomico->clasificacion_sisfoh ?? '') === 'no_pobre' ? 'selected' : '' }}>No Pobre</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="situacion_orfandad" class="form-label fw-semibold">Situación de Orfandad <span class="text-danger">*</span></label>
+                            <select name="situacion_orfandad" id="situacion_orfandad" class="form-select form-select-sm" required>
+                                <option value="ninguna" {{ old('situacion_orfandad', $estudiante->perfilSocioeconomico->situacion_orfandad ?? 'ninguna') === 'ninguna' ? 'selected' : '' }}>Ninguna</option>
+                                <option value="padre" {{ old('situacion_orfandad', $estudiante->perfilSocioeconomico->situacion_orfandad ?? '') === 'padre' ? 'selected' : '' }}>Orfandad de Padre</option>
+                                <option value="madre" {{ old('situacion_orfandad', $estudiante->perfilSocioeconomico->situacion_orfandad ?? '') === 'madre' ? 'selected' : '' }}>Orfandad de Madre</option>
+                                <option value="ambos" {{ old('situacion_orfandad', $estudiante->perfilSocioeconomico->situacion_orfandad ?? '') === 'ambos' ? 'selected' : '' }}>Orfandad Total (Ambos Padres)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nro_dependientes" class="form-label fw-semibold">Número de Dependientes / Carga Familiar <span class="text-danger">*</span></label>
+                            <input type="number" 
+                                   name="nro_dependientes" 
+                                   id="nro_dependientes" 
+                                   min="0" 
+                                   max="50" 
+                                   class="form-control form-control-sm" 
+                                   value="{{ old('nro_dependientes', $estudiante->perfilSocioeconomico->nro_dependientes ?? 0) }}" 
+                                   required>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-6">
+                                <div class="form-check">
+                                    <input type="checkbox" 
+                                           name="es_sustento_familiar" 
+                                           id="es_sustento_familiar" 
+                                           class="form-check-input" 
+                                           value="1" 
+                                           {{ old('es_sustento_familiar', $estudiante->perfilSocioeconomico->es_sustento_familiar ?? false) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="es_sustento_familiar">
+                                        Es sustento económico principal
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check">
+                                    <input type="checkbox" 
+                                           name="violencia_familiar" 
+                                           id="violencia_familiar" 
+                                           class="form-check-input" 
+                                           value="1" 
+                                           {{ old('violencia_familiar', $estudiante->perfilSocioeconomico->violencia_familiar ?? false) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="violencia_familiar">
+                                        Violencia familiar registrada
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="observacion" class="form-label fw-semibold">Observación Social Confidencial (Cifrada)</label>
+                            <textarea name="observacion" 
+                                      id="observacion" 
+                                      rows="3" 
+                                      maxlength="1000" 
+                                      class="form-control form-control-sm" 
+                                      placeholder="Detalles confidenciales de evaluación socioeconómica...">{{ old('observacion', $estudiante->perfilSocioeconomico->observacion ?? '') }}</textarea>
+                            <div class="form-text small">La observación se almacena con cifrado y no es visible para el Administrador ni docentes.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer py-2 bg-light">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Guardar perfil</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endcan
 @endsection
