@@ -206,9 +206,9 @@ class P2SolicitudesTest extends TestCase
 
         $solicitudEst1 = SolicitudApoyo::where('id_estudiante', $this->estudiante1->estudiante->id_estudiante)->latest('id_solicitud')->firstOrFail();
 
-        // Estudiante 2 intenta consultar la solicitud de Estudiante 1 por ID
+        // Estudiante 2 intenta consultar la solicitud de Estudiante 1 por ID (registro ajeno -> 404)
         $response = $this->actingAs($this->estudiante2)->get("/bienestar/solicitudes/{$solicitudEst1->id_solicitud}");
-        $response->assertStatus(403);
+        $response->assertStatus(404);
     }
 
     /**
@@ -227,9 +227,9 @@ class P2SolicitudesTest extends TestCase
 
         $documentoEst1 = DocumentoAdjunto::latest('id_documento')->firstOrFail();
 
-        // Estudiante 2 intenta descargar el documento de Estudiante 1
+        // Estudiante 2 intenta descargar el documento de Estudiante 1 (registro ajeno -> 404)
         $response = $this->actingAs($this->estudiante2)->get("/bienestar/solicitudes/documentos/{$documentoEst1->id_documento}/descargar");
-        $response->assertStatus(403);
+        $response->assertStatus(404);
     }
 
     /**

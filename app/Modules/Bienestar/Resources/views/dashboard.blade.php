@@ -15,8 +15,8 @@
     @endif
 </div>
 
-{{-- PERSONAL DE BIENESTAR / ADMINISTRADOR --}}
-@if(in_array($rol, ['Personal de Bienestar', 'Administrador']))
+{{-- PERSONAL DE BIENESTAR --}}
+@if($rol === 'Personal de Bienestar')
     <div class="row g-3 mb-4">
         <div class="col-md-3">
             <div class="card h-100">
@@ -63,9 +63,11 @@
         <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
             <span class="fw-semibold text-dark">Casos recientes</span>
             <div class="d-flex gap-2">
-                <a href="{{ route('bienestar.casos.create') }}" class="btn btn-primary btn-sm">
-                    Nuevo caso
-                </a>
+                @can('create', App\Modules\Bienestar\Models\CasoBienestar::class)
+                    <a href="{{ route('bienestar.casos.create') }}" class="btn btn-primary btn-sm">
+                        Nuevo caso
+                    </a>
+                @endcan
                 <a href="{{ route('bienestar.casos.index') }}" class="btn btn-outline-secondary btn-sm">
                     Ver todos ({{ $totalCasos }})
                 </a>
@@ -101,6 +103,100 @@
                                 <td>
                                     <span class="badge bg-light text-dark border">{{ ucfirst(str_replace('_', ' ', $caso->estado)) }}</span>
                                 </td>
+                                <td>
+                                    @if($caso->confidencial)
+                                        <span class="badge bg-light text-danger border border-danger-subtle">Sí</span>
+                                    @else
+                                        <span class="text-muted small">No</span>
+                                    @endif
+                                </td>
+                                <td class="text-muted small">{{ $caso->fecha_registro->format('d/m/Y') }}</td>
+                                <td class="text-end pe-3">
+                                    <a href="{{ route('bienestar.casos.show', $caso->id_caso) }}" class="btn btn-outline-secondary btn-sm">
+                                        Ver
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">No se registran casos recientes.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+@endif
+
+{{-- ADMINISTRADOR --}}
+@if($rol === 'Administrador')
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body p-3">
+                    <span class="text-muted small">Total de casos</span>
+                    <h3 class="fw-bold my-1 text-dark">{{ $totalCasos }}</h3>
+                    <span class="text-muted small">Registrados</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body p-3">
+                    <span class="text-muted small">Solicitudes recibidas</span>
+                    <h3 class="fw-bold my-1 text-dark">{{ $solicitudesPendientes }}</h3>
+                    <span class="text-muted small">En trámite institucional</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('bienestar.reportes.index') }}" class="text-decoration-none">
+                <div class="card h-100 border-primary">
+                    <div class="card-body p-3">
+                        <span class="text-muted small">Módulo de reportes</span>
+                        <h4 class="fw-bold my-1 text-primary">Generar reportes &rarr;</h4>
+                        <span class="text-muted small">Consolidados y exportación CSV</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Casos en supervisión -->
+    <div class="card mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+            <span class="fw-semibold text-dark">Supervisión de casos</span>
+            <a href="{{ route('bienestar.casos.index') }}" class="btn btn-outline-secondary btn-sm">
+                Ver padrón completo ({{ $totalCasos }})
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>N° de caso</th>
+                            <th>Estudiante</th>
+                            <th>Tipo de caso</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Confidencial</th>
+                            <th>Fecha</th>
+                            <th class="text-end pe-3">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($ultimosCasos as $caso)
+                            <tr>
+                                <td class="fw-medium text-dark">#CAS-{{ str_pad($caso->id_caso, 4, '0', STR_PAD_LEFT) }}</td>
+                                <td>
+                                    <strong>{{ $caso->estudiante->nombres }} {{ $caso->estudiante->apellidos }}</strong>
+                                    <span class="d-block text-muted small">Código: {{ $caso->estudiante->codigo_universitario }}</span>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">{{ $caso->tipoCaso->nombre }}</span></td>
+                                <td><span class="badge bg-light text-dark border">{{ ucfirst($caso->prioridad) }}</span></td>
+                                <td><span class="badge bg-light text-dark border">{{ ucfirst(str_replace('_', ' ', $caso->estado)) }}</span></td>
                                 <td>
                                     @if($caso->confidencial)
                                         <span class="badge bg-light text-danger border border-danger-subtle">Sí</span>

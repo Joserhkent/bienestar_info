@@ -10,8 +10,7 @@ class DictaminarSolicitudRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $solicitud = $this->route('solicitud');
-        return $this->user() && $solicitud && $this->user()->can('dictaminar', $solicitud);
+        return true; // La autorización se valida en el controlador para redirigir con alerta
     }
 
     public function rules(): array

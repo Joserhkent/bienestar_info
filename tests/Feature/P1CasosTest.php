@@ -153,8 +153,8 @@ class P1CasosTest extends TestCase
         // Caso perteneciente a Estudiante 1 y marcado como confidencial
         $casoEstudiante1 = CasoBienestar::where('id_estudiante', $this->estudiante1->estudiante->id_estudiante)->firstOrFail();
 
-        // Estudiante 2 intenta consultar la URL directa del caso de Estudiante 1
+        // Estudiante 2 intenta consultar la URL directa del caso de Estudiante 1 (registro ajeno -> 404)
         $response = $this->actingAs($this->estudiante2)->get("/bienestar/casos/{$casoEstudiante1->id_caso}");
-        $response->assertStatus(403);
+        $response->assertStatus(404);
     }
 }

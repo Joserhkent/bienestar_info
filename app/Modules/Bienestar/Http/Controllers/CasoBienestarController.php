@@ -87,9 +87,11 @@ class CasoBienestarController extends Controller
     /**
      * Vista de detalle del expediente y su historial de estados
      */
-    public function show(CasoBienestar $caso): View
+    public function show(Request $request, CasoBienestar $caso): View
     {
-        $this->authorize('view', $caso);
+        if ($request->user()->cannot('view', $caso)) {
+            abort(404, 'El expediente solicitado no existe o no se encuentra disponible.');
+        }
 
         $caso->load([
             'estudiante.perfilSocioeconomico',
@@ -107,7 +109,9 @@ class CasoBienestarController extends Controller
      */
     public function cambiarEstado(CambiarEstadoCasoRequest $request, CasoBienestar $caso): RedirectResponse
     {
-        $this->authorize('cambiarEstado', $caso);
+        if ($request->user()->cannot('cambiarEstado', $caso)) {
+            return back()->with('warning', 'No tienes autorización para cambiar el estado de este caso.');
+        }
 
         $this->casoService->cambiarEstado(
             $caso,

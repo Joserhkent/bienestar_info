@@ -82,50 +82,43 @@
                                 Panel principal
                             </a>
                         </li>
-                        @if(in_array(Auth::user()->rol->nombre ?? '', ['Personal de Bienestar', 'Administrador']))
+                        @can('viewAny', App\Modules\Bienestar\Models\CasoBienestar::class)
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('bienestar.casos.*') ? 'active' : '' }}" href="{{ route('bienestar.casos.index') }}">
                                     Casos
                                 </a>
                             </li>
+                        @endcan
+                        @if(in_array(Auth::user()->rol->nombre ?? '', ['Personal de Bienestar', 'Administrador']))
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.*') ? 'active' : '' }}" href="{{ route('bienestar.solicitudes.index') }}">
                                     Solicitudes
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('bienestar.citas.*') && !request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.index') }}">
-                                    Citas
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('bienestar.derivaciones.*') ? 'active' : '' }}" href="{{ route('bienestar.derivaciones.index') }}">
-                                    Derivaciones
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.horarios') }}">
-                                    Horarios
-                                </a>
-                            </li>
                         @endif
-                        @if((Auth::user()->rol->nombre ?? '') === 'Especialista')
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('bienestar.citas.*') && !request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.index') }}">
-                                    Citas
-                                </a>
-                            </li>
+                        @can('viewAny', App\Modules\Bienestar\Models\Cita::class)
+                            @if((Auth::user()->rol->nombre ?? '') !== 'Estudiante')
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('bienestar.citas.*') && !request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.index') }}">
+                                        Citas
+                                    </a>
+                                </li>
+                            @endif
+                        @endcan
+                        @can('viewAny', App\Modules\Bienestar\Models\Derivacion::class)
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('bienestar.derivaciones.*') ? 'active' : '' }}" href="{{ route('bienestar.derivaciones.index') }}">
                                     Derivaciones
                                 </a>
                             </li>
+                        @endcan
+                        @can('gestionarHorarios', App\Modules\Bienestar\Models\Cita::class)
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.horarios') }}">
                                     Mis horarios
                                 </a>
                             </li>
-                        @endif
+                        @endcan
                         @if((Auth::user()->rol->nombre ?? '') === 'Estudiante')
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.*') ? 'active' : '' }}" href="{{ route('bienestar.solicitudes.index') }}">

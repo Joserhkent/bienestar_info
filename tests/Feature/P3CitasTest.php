@@ -261,9 +261,9 @@ class P3CitasTest extends TestCase
             'fecha_solicitud' => now(),
         ]);
 
-        // Estudiante 2 intenta acceder a la cita de Estudiante 1 cambiando el ID
+        // Estudiante 2 intenta acceder a la cita de Estudiante 1 cambiando el ID (registro ajeno -> 404)
         $response = $this->actingAs($this->estudiante2)->get("/bienestar/citas/{$citaEst1->id_cita}");
-        $response->assertStatus(403);
+        $response->assertStatus(404);
     }
 
     /**
@@ -288,10 +288,11 @@ class P3CitasTest extends TestCase
             'fecha_solicitud' => now(),
         ]);
 
-        // Especialista 2 intenta confirmar la cita de Especialista 1
+        // Especialista 2 intenta confirmar la cita de Especialista 1 (acción POST prohibida dentro de página -> redirige con alerta)
         $response = $this->actingAs($this->especialista2)
             ->post("/bienestar/citas/{$citaEsp1->id_cita}/confirmar");
 
-        $response->assertStatus(403);
+        $response->assertRedirect();
+        $response->assertSessionHas('warning', 'No tienes autorización para confirmar esta cita.');
     }
 }

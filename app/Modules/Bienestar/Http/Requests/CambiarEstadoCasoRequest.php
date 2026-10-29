@@ -8,11 +8,7 @@ class CambiarEstadoCasoRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $caso = $this->route('caso');
-        if (is_numeric($caso)) {
-            $caso = \App\Modules\Bienestar\Models\CasoBienestar::find($caso);
-        }
-        return $this->user() && $caso && $this->user()->can('cambiarEstado', $caso);
+        return true; // La autorización se valida en el controlador para redirigir con alerta
     }
 
     public function rules(): array

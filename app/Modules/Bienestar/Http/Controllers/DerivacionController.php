@@ -90,11 +90,13 @@ class DerivacionController extends Controller
     }
 
     /**
-     * Ver detalle de la derivación y su historial de sesiones de seguimiento.
+     * Ver detalle de la derivación (acceso restringido; 404 ante id ajeno).
      */
-    public function show(Derivacion $derivacion)
+    public function show(Request $request, Derivacion $derivacion)
     {
-        $this->authorize('view', $derivacion);
+        if ($request->user()->cannot('view', $derivacion)) {
+            abort(404, 'La derivación solicitada no existe o no se encuentra disponible.');
+        }
 
         $derivacion->load(['caso.estudiante.usuario', 'caso.tipoCaso', 'especialista.usuario', 'usuarioDeriva', 'seguimientos']);
 
@@ -106,7 +108,9 @@ class DerivacionController extends Controller
      */
     public function storeSeguimiento(StoreSeguimientoRequest $request, Derivacion $derivacion)
     {
-        $this->authorize('registrarSeguimiento', $derivacion);
+        if ($request->user()->cannot('registrarSeguimiento', $derivacion)) {
+            return back()->with('warning', 'No tienes autorización para registrar sesiones en esta derivación.');
+        }
 
         $this->derivacionService->registrarSeguimiento(
             $derivacion,
@@ -122,9 +126,15 @@ class DerivacionController extends Controller
     /**
      * Especialista acepta la derivación asignada.
      */
-    public function aceptar(Derivacion $derivacion)
+    public function aceptar(Request $request, Derivacion $derivacion)
     {
-        $this->authorize('update', $derivacion);
+        if ($request->user()->cannot('update', $derivacion)) {
+            return back()->with('warning', 'No tienes autorización para aceptar esta derivación.');
+        }
+
+        if ($derivacion->estado !== 'pendiente') {
+            return back()->with('warning', 'Esta derivación ya ha sido procesada.');
+        }
 
         $this->derivacionService->aceptarDerivacion($derivacion);
 
@@ -138,7 +148,13 @@ class DerivacionController extends Controller
      */
     public function finalizar(Request $request, Derivacion $derivacion)
     {
-        $this->authorize('update', $derivacion);
+        if ($request->user()->cannot('update', $derivacion)) {
+            return back()->with('warning', 'No tienes autorización para concluir esta derivación.');
+        }
+
+        if ($derivacion->estado === 'finalizada') {
+            return back()->with('warning', 'Esta derivación ya se encuentra finalizada.');
+        }
 
         $validated = $request->validate([
             'informe_conclusion' => ['required', 'string', 'min:10', 'max:3000'],

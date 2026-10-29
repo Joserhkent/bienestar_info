@@ -97,11 +97,13 @@ class SolicitudApoyoController extends Controller
 
     /**
      * Ver el detalle de una solicitud, sus adjuntos y resolución.
-     * Protegido por SolicitudApoyoPolicy (aislamiento estricto por ID).
+     * Protegido por SolicitudApoyoPolicy (aislamiento estricto por ID con 404).
      */
-    public function show(SolicitudApoyo $solicitud)
+    public function show(Request $request, SolicitudApoyo $solicitud)
     {
-        $this->authorize('view', $solicitud);
+        if ($request->user()->cannot('view', $solicitud)) {
+            abort(404, 'La solicitud solicitada no existe o no se encuentra disponible.');
+        }
 
         $solicitud->load(['estudiante.usuario', 'documentos', 'usuarioRevisa']);
 
@@ -114,7 +116,9 @@ class SolicitudApoyoController extends Controller
      */
     public function dictaminar(DictaminarSolicitudRequest $request, SolicitudApoyo $solicitud)
     {
-        $this->authorize('dictaminar', $solicitud);
+        if ($request->user()->cannot('dictaminar', $solicitud)) {
+            return back()->with('warning', 'No tienes autorización para dictaminar esta solicitud.');
+        }
 
         $this->solicitudService->dictaminar(
             $solicitud,
@@ -132,11 +136,13 @@ class SolicitudApoyoController extends Controller
 
     /**
      * Descarga segura de un documento sustentatorio.
-     * Protegido por DocumentoAdjuntoPolicy (solo estudiante dueño y bienestar/admin).
+     * Protegido por DocumentoAdjuntoPolicy (solo estudiante dueño y bienestar; 404 ante id ajeno).
      */
-    public function descargarDocumento(DocumentoAdjunto $documento)
+    public function descargarDocumento(Request $request, DocumentoAdjunto $documento)
     {
-        $this->authorize('view', $documento);
+        if ($request->user()->cannot('view', $documento)) {
+            abort(404, 'El documento solicitado no existe o no se encuentra disponible.');
+        }
 
         return $this->solicitudService->descargarDocumento($documento);
     }

@@ -8,8 +8,7 @@ class CancelarCitaRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $cita = $this->route('cita');
-        return $this->user() && $cita && $this->user()->can('cancelar', $cita);
+        return true; // La autorización se valida en el controlador para redirigir con alerta
     }
 
     public function rules(): array

@@ -275,8 +275,8 @@ class P4DerivacionesTest extends TestCase
             'motivo' => 'Intento de docente no autorizado.',
         ])->assertStatus(403);
 
-        // GET detalle
-        $this->actingAs($this->docente)->get("/bienestar/derivaciones/{$derivacion->id_derivacion}")->assertStatus(403);
+        // GET detalle (registro ajeno/inaccesible -> 404)
+        $this->actingAs($this->docente)->get("/bienestar/derivaciones/{$derivacion->id_derivacion}")->assertStatus(404);
 
         // POST seguimiento
         $this->actingAs($this->docente)->post("/bienestar/derivaciones/{$derivacion->id_derivacion}/seguimientos", [
@@ -300,7 +300,7 @@ class P4DerivacionesTest extends TestCase
 
         $this->actingAs($this->estudiante1)->get('/bienestar/derivaciones')->assertStatus(403);
         $this->actingAs($this->estudiante1)->get('/bienestar/derivaciones/crear')->assertStatus(403);
-        $this->actingAs($this->estudiante1)->get("/bienestar/derivaciones/{$derivacion->id_derivacion}")->assertStatus(403);
+        $this->actingAs($this->estudiante1)->get("/bienestar/derivaciones/{$derivacion->id_derivacion}")->assertStatus(404);
         $this->actingAs($this->estudiante1)->post("/bienestar/derivaciones/{$derivacion->id_derivacion}/seguimientos", [
             'nota_avance' => 'Estudiante intentando escribir notas clínicas.',
         ])->assertStatus(403);
@@ -321,10 +321,10 @@ class P4DerivacionesTest extends TestCase
             'fecha_derivacion' => now(),
         ]);
 
-        // Especialista 2 intenta ver el detalle -> 403
+        // Especialista 2 intenta ver el detalle -> 404 (registro ajeno)
         $this->actingAs($this->especialista2)
             ->get("/bienestar/derivaciones/{$derivacion->id_derivacion}")
-            ->assertStatus(403);
+            ->assertStatus(404);
 
         // Especialista 2 intenta registrar una nota de seguimiento -> 403
         $this->actingAs($this->especialista2)

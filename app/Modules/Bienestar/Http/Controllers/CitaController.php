@@ -101,11 +101,13 @@ class CitaController extends Controller
     }
 
     /**
-     * Ver detalle de la cita (acceso restringido por Policy).
+     * Ver detalle de la cita (acceso restringido; 404 ante id ajeno).
      */
-    public function show(Cita $cita)
+    public function show(Request $request, Cita $cita)
     {
-        $this->authorize('view', $cita);
+        if ($request->user()->cannot('view', $cita)) {
+            abort(404, 'La cita solicitada no existe o no se encuentra disponible.');
+        }
 
         $cita->load(['horario.especialista', 'estudiante.usuario', 'caso']);
 
@@ -113,11 +115,17 @@ class CitaController extends Controller
     }
 
     /**
-     * Confirmar una cita solicitada (Especialista / Bienestar).
+     * Confirmar una cita solicitada (Exclusivo Especialista).
      */
-    public function confirmar(Cita $cita)
+    public function confirmar(Request $request, Cita $cita)
     {
-        $this->authorize('confirmar', $cita);
+        if ($request->user()->cannot('confirmar', $cita)) {
+            return back()->with('warning', 'No tienes autorización para confirmar esta cita.');
+        }
+
+        if ($cita->estado !== 'solicitada') {
+            return back()->with('warning', 'Solo se pueden confirmar citas en estado solicitada.');
+        }
 
         $this->citaService->confirmarCita($cita);
 
@@ -131,7 +139,13 @@ class CitaController extends Controller
      */
     public function cancelar(CancelarCitaRequest $request, Cita $cita)
     {
-        $this->authorize('cancelar', $cita);
+        if ($request->user()->cannot('cancelar', $cita)) {
+            return back()->with('warning', 'No tienes autorización para cancelar esta cita.');
+        }
+
+        if ($cita->estado !== 'solicitada' && $cita->estado !== 'confirmada') {
+            return back()->with('warning', 'Esta cita no puede ser cancelada en su estado actual.');
+        }
 
         $this->citaService->cancelarCita(
             $cita,
@@ -145,11 +159,17 @@ class CitaController extends Controller
     }
 
     /**
-     * Marcar cita como realizada tras la atención.
+     * Marcar cita como realizada tras la atención (Exclusivo Especialista).
      */
-    public function atender(Cita $cita)
+    public function atender(Request $request, Cita $cita)
     {
-        $this->authorize('atender', $cita);
+        if ($request->user()->cannot('atender', $cita)) {
+            return back()->with('warning', 'No tienes autorización para marcar esta cita como realizada.');
+        }
+
+        if ($cita->estado !== 'confirmada') {
+            return back()->with('warning', 'Solo se pueden registrar como atendidas las citas confirmadas.');
+        }
 
         $this->citaService->atenderCita($cita);
 
