@@ -143,6 +143,24 @@
                                 </a>
                             </li>
                         @endif
+                        @if((Auth::user()->rol->nombre ?? '') === 'Administrador')
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.reportes.*') ? 'active' : '' }}" href="{{ route('bienestar.reportes.index') }}">
+                                    Reportes
+                                </a>
+                            </li>
+                        @endif
+                        @php
+                            $notifNoLeidas = \App\Modules\Bienestar\Models\Notificacion::where('id_usuario', Auth::id())->where('leida', false)->count();
+                        @endphp
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('bienestar.notificaciones.*') ? 'active' : '' }}" href="{{ route('bienestar.notificaciones.index') }}">
+                                Notificaciones
+                                @if($notifNoLeidas > 0)
+                                    <span class="badge bg-light text-dark ms-1">{{ $notifNoLeidas }}</span>
+                                @endif
+                            </a>
+                        </li>
                     @endauth
                 </ul>
 

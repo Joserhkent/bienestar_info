@@ -13,7 +13,17 @@ class ReportePolicy
      * Generación y visualización de reportes consolidados (P5):
      * Exclusivo de Administrador / Dirección de Escuela.
      */
+    public function viewAny(Usuario $user): bool
+    {
+        return $user->rol && $user->rol->nombre === 'Administrador';
+    }
+
     public function generate(Usuario $user): bool
+    {
+        return $user->rol && $user->rol->nombre === 'Administrador';
+    }
+
+    public function export(Usuario $user): bool
     {
         return $user->rol && $user->rol->nombre === 'Administrador';
     }

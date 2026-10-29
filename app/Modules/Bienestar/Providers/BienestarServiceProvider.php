@@ -9,6 +9,7 @@ use App\Modules\Bienestar\Models\Cita;
 use App\Modules\Bienestar\Models\Derivacion;
 use App\Modules\Bienestar\Models\DocumentoAdjunto;
 use App\Modules\Bienestar\Models\EstudianteTipoCondicion;
+use App\Modules\Bienestar\Models\Notificacion;
 use App\Modules\Bienestar\Models\Reporte;
 use App\Modules\Bienestar\Models\SolicitudApoyo;
 use App\Modules\Bienestar\Policies\CasoBienestarPolicy;
@@ -16,6 +17,7 @@ use App\Modules\Bienestar\Policies\CitaPolicy;
 use App\Modules\Bienestar\Policies\DerivacionPolicy;
 use App\Modules\Bienestar\Policies\DocentePautaPolicy;
 use App\Modules\Bienestar\Policies\DocumentoAdjuntoPolicy;
+use App\Modules\Bienestar\Policies\NotificacionPolicy;
 use App\Modules\Bienestar\Policies\ReportePolicy;
 use App\Modules\Bienestar\Policies\SolicitudApoyoPolicy;
 
@@ -50,6 +52,7 @@ class BienestarServiceProvider extends ServiceProvider
         Gate::policy(Cita::class, CitaPolicy::class);
         Gate::policy(Derivacion::class, DerivacionPolicy::class);
         Gate::policy(EstudianteTipoCondicion::class, DocentePautaPolicy::class);
+        Gate::policy(Notificacion::class, NotificacionPolicy::class);
         Gate::policy(Reporte::class, ReportePolicy::class);
     }
 }

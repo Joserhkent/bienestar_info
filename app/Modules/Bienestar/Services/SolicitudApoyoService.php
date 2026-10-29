@@ -71,6 +71,19 @@ class SolicitudApoyoService
                 ]);
             }
 
+            // Notificación al estudiante (P5: confirmación de recepción)
+            if ($estudiante && $estudiante->id_usuario) {
+                Notificacion::create([
+                    'id_usuario' => $estudiante->id_usuario,
+                    'id_caso' => null,
+                    'titulo' => 'Solicitud registrada',
+                    'mensaje' => 'Su solicitud de apoyo ha sido registrada y se encuentra en proceso de revisión.',
+                    'canal' => 'sistema',
+                    'fecha_envio' => now(),
+                    'leida' => false,
+                ]);
+            }
+
             return $solicitud->load(['documentos', 'estudiante.usuario']);
         });
     }

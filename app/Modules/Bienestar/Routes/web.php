@@ -4,6 +4,8 @@ use App\Modules\Bienestar\Http\Controllers\AuthController;
 use App\Modules\Bienestar\Http\Controllers\CasoBienestarController;
 use App\Modules\Bienestar\Http\Controllers\CitaController;
 use App\Modules\Bienestar\Http\Controllers\DerivacionController;
+use App\Modules\Bienestar\Http\Controllers\NotificacionController;
+use App\Modules\Bienestar\Http\Controllers\ReporteController;
 use App\Modules\Bienestar\Http\Controllers\SolicitudApoyoController;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +64,17 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
         Route::post('/derivaciones/{derivacion}/aceptar', [DerivacionController::class, 'aceptar'])->whereNumber('derivacion')->name('derivaciones.aceptar');
         Route::post('/derivaciones/{derivacion}/finalizar', [DerivacionController::class, 'finalizar'])->whereNumber('derivacion')->name('derivaciones.finalizar');
 
+        // PROCESO P5: Notificaciones
+        Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+        Route::post('/notificaciones/{notificacion}/leer', [NotificacionController::class, 'marcarLeida'])->whereNumber('notificacion')->name('notificaciones.leer');
+        Route::post('/notificaciones/leer-todas', [NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.leerTodas');
+
+        // PROCESO P5: Reportes (Exclusivo Administrador / Dirección)
+        Route::middleware('role:Administrador')->group(function () {
+            Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+            Route::get('/reportes/exportar-csv', [ReporteController::class, 'exportarCsv'])->name('reportes.exportarCsv');
+        });
+
         // Aliases para el menú del dashboard
         Route::get('/mis-solicitudes', fn() => redirect()->route('bienestar.solicitudes.index'))->name('estudiante.solicitudes');
         Route::get('/mis-citas', fn() => redirect()->route('bienestar.citas.index'))->name('estudiante.citas');
@@ -70,10 +83,6 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
 
         Route::middleware('role:Docente')->group(function () {
             Route::get('/pautas-docente', fn() => redirect()->route('bienestar.dashboard'))->name('docente.pautas');
-        });
-
-        Route::middleware('role:Administrador')->group(function () {
-            Route::get('/reportes', fn() => redirect()->route('bienestar.dashboard'))->name('admin.reportes');
         });
     });
 });

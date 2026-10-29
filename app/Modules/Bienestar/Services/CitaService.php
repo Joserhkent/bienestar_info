@@ -48,13 +48,26 @@ class CitaService
                 'fecha_confirmacion' => null,
             ]);
 
-            // 4. Notificar al especialista asignado
+            // 4. Notificar al especialista asignado y al estudiante (P5)
+            $fechaTexto = $horario->fecha->format('d/m/Y');
             if ($horario->especialista && $horario->especialista->id_usuario) {
                 Notificacion::create([
                     'id_usuario' => $horario->especialista->id_usuario,
                     'id_caso' => $idCaso,
                     'titulo' => 'Nueva cita solicitada',
-                    'mensaje' => "El estudiante {$estudiante->nombres} {$estudiante->apellidos} ha reservado una cita para el " . $horario->fecha->format('d/m/Y') . " ({$horario->hora_inicio} - {$horario->hora_fin}).",
+                    'mensaje' => "Se ha reservado una cita para el {$fechaTexto} ({$horario->hora_inicio} - {$horario->hora_fin}).",
+                    'canal' => 'sistema',
+                    'fecha_envio' => now(),
+                    'leida' => false,
+                ]);
+            }
+
+            if ($estudiante && $estudiante->id_usuario) {
+                Notificacion::create([
+                    'id_usuario' => $estudiante->id_usuario,
+                    'id_caso' => $idCaso,
+                    'titulo' => 'Cita solicitada',
+                    'mensaje' => "Su solicitud de cita para el {$fechaTexto} ({$horario->hora_inicio} - {$horario->hora_fin}) ha sido registrada.",
                     'canal' => 'sistema',
                     'fecha_envio' => now(),
                     'leida' => false,
@@ -150,12 +163,24 @@ class CitaService
     }
 
     /**
-     * Marca la cita como realizada tras la atención.
+     * Marca la cita como realizada tras la atención y notifica al estudiante (P5).
      */
     public function atenderCita(Cita $cita): Cita
     {
         $cita->estado = 'realizada';
         $cita->save();
+
+        if ($cita->estudiante && $cita->estudiante->id_usuario) {
+            Notificacion::create([
+                'id_usuario' => $cita->estudiante->id_usuario,
+                'id_caso' => $cita->id_caso,
+                'titulo' => 'Cita completada',
+                'mensaje' => 'Su cita de atención ha sido concluida satisfactoriamente.',
+                'canal' => 'sistema',
+                'fecha_envio' => now(),
+                'leida' => false,
+            ]);
+        }
 
         return $cita->fresh();
     }

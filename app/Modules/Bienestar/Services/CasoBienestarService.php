@@ -4,6 +4,7 @@ namespace App\Modules\Bienestar\Services;
 
 use App\Modules\Bienestar\Models\CasoBienestar;
 use App\Modules\Bienestar\Models\HistorialEstadoCaso;
+use App\Modules\Bienestar\Models\Notificacion;
 use App\Modules\Bienestar\Models\Usuario;
 use Illuminate\Support\Facades\DB;
 
@@ -41,6 +42,20 @@ class CasoBienestarService
                 'comentario' => 'Apertura inicial del expediente de bienestar estudiantil.',
             ]);
 
+            // 3. Notificación informativa al estudiante (P5: texto genérico sin datos confidenciales)
+            $caso->load('estudiante.usuario');
+            if ($caso->estudiante?->usuario) {
+                Notificacion::create([
+                    'id_usuario' => $caso->estudiante->usuario->id_usuario,
+                    'id_caso' => $caso->id_caso,
+                    'titulo' => 'Apertura de expediente',
+                    'mensaje' => 'Se ha aperturado un expediente de bienestar estudiantil a su nombre (#CAS-' . str_pad($caso->id_caso, 4, '0', STR_PAD_LEFT) . ').',
+                    'canal' => 'sistema',
+                    'fecha_envio' => now(),
+                    'leida' => false,
+                ]);
+            }
+
             return $caso;
         });
     }
@@ -75,6 +90,21 @@ class CasoBienestarService
                 'fecha_cambio' => now(),
                 'comentario' => $comentario,
             ]);
+
+            // Notificación de cambio de estado al estudiante (P5: texto genérico)
+            $caso->load('estudiante.usuario');
+            if ($caso->estudiante?->usuario) {
+                $estadoLegible = str_replace('_', ' ', $nuevoEstado);
+                Notificacion::create([
+                    'id_usuario' => $caso->estudiante->usuario->id_usuario,
+                    'id_caso' => $caso->id_caso,
+                    'titulo' => 'Actualización de caso',
+                    'mensaje' => 'Su expediente #CAS-' . str_pad($caso->id_caso, 4, '0', STR_PAD_LEFT) . ' ha cambiado al estado: ' . $estadoLegible . '.',
+                    'canal' => 'sistema',
+                    'fecha_envio' => now(),
+                    'leida' => false,
+                ]);
+            }
 
             return $caso;
         });
