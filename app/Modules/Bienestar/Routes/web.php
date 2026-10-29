@@ -8,6 +8,7 @@ use App\Modules\Bienestar\Http\Controllers\EstudianteController;
 use App\Modules\Bienestar\Http\Controllers\NotificacionController;
 use App\Modules\Bienestar\Http\Controllers\ReporteController;
 use App\Modules\Bienestar\Http\Controllers\SolicitudApoyoController;
+use App\Modules\Bienestar\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
 // El grupo 'web' es obligatorio para inicializar sesiones, cookies y ShareErrorsFromSession ($errors)
@@ -47,6 +48,15 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
             });
 
             Route::get('/estudiantes/{estudiante}', [EstudianteController::class, 'show'])->whereNumber('estudiante')->name('estudiantes.show');
+
+            // GESTIÓN DE USUARIOS Y ESPECIALISTAS (Fase E - Proceso 1 BPMN)
+            Route::middleware('role:Personal de Bienestar,Administrador')->group(function () {
+                Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+                Route::get('/usuarios/especialistas/crear', [UsuarioController::class, 'createEspecialista'])->name('usuarios.especialistas.create');
+                Route::post('/usuarios/especialistas', [UsuarioController::class, 'storeEspecialista'])->name('usuarios.especialistas.store');
+                Route::post('/usuarios/{usuario}/alternar-estado', [UsuarioController::class, 'alternarEstado'])->whereNumber('usuario')->name('usuarios.alternar-estado');
+                Route::post('/usuarios/{usuario}/restablecer-password', [UsuarioController::class, 'restablecerPassword'])->whereNumber('usuario')->name('usuarios.restablecer-password');
+            });
 
             // PROCESO P1: Registro y Gestión de Casos
         Route::middleware('role:Personal de Bienestar,Administrador')->group(function () {

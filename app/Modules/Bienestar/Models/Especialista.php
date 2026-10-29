@@ -56,4 +56,9 @@ class Especialista extends Model
     {
         return $query->where('especialidad', 'like', "%{$esp}%");
     }
+
+    public function getNombreCompletoAttribute(): string
+    {
+        return "{$this->nombres} {$this->apellidos}";
+    }
 }

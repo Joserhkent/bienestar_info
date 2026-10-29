@@ -26,6 +26,14 @@ class RolMenuAccessTest extends TestCase
         $this->especialista = Usuario::with('especialista')->where('correo', 'psicologia@unitru.edu.pe')->firstOrFail();
         $this->docente = Usuario::with('rol')->where('correo', 'docente@unitru.edu.pe')->firstOrFail();
         $this->estudiante = Usuario::with('estudiante')->where('correo', 'estudiante1@unitru.edu.pe')->firstOrFail();
+
+        Usuario::whereIn('correo', [
+            'admin@unitru.edu.pe',
+            'bienestar@unitru.edu.pe',
+            'psicologia@unitru.edu.pe',
+            'docente@unitru.edu.pe',
+            'estudiante1@unitru.edu.pe',
+        ])->update(['debe_cambiar_contrasena' => false, 'estado' => 'activo']);
     }
 
     /**
@@ -43,6 +51,7 @@ class RolMenuAccessTest extends TestCase
         $response->assertSee('Citas');
         $response->assertSee('Derivaciones');
         $response->assertSee('Reportes');
+        $response->assertSee('Usuarios');
         $response->assertSee('Notificaciones');
 
         // Acceso exitoso a reportes
@@ -62,6 +71,7 @@ class RolMenuAccessTest extends TestCase
         $response->assertSee('Solicitudes');
         $response->assertSee('Citas');
         $response->assertSee('Derivaciones');
+        $response->assertSee('Usuarios');
         $response->assertSee('Notificaciones');
         // No debe ver enlace a Reportes
         $response->assertDontSee('Reportes');
@@ -142,6 +152,7 @@ class RolMenuAccessTest extends TestCase
         $response->assertDontSee('Derivaciones');
         $response->assertDontSee('Horarios');
         $response->assertDontSee('Reportes');
+        $response->assertDontSee('Usuarios');
 
         // Rutas prohibidas devuelven 403 (módulo general) o 404 (ID ajeno)
         $this->actingAs($this->estudiante)->get('/bienestar/casos')->assertStatus(403);
@@ -173,6 +184,7 @@ class RolMenuAccessTest extends TestCase
         $response->assertDontSee('Derivaciones');
         $response->assertDontSee('Horarios');
         $response->assertDontSee('Reportes');
+        $response->assertDontSee('Usuarios');
 
         // Toda ruta confidencial devuelve 403 Forbidden
         $this->actingAs($this->docente)->get('/bienestar/casos')->assertStatus(403);

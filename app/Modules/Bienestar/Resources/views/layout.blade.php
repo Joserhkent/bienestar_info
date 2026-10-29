@@ -161,6 +161,13 @@
                                 </a>
                             </li>
                         @endif
+                        @can('viewAny', App\Modules\Bienestar\Models\Usuario::class)
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.usuarios.*') ? 'active' : '' }}" href="{{ route('bienestar.usuarios.index') }}">
+                                    Usuarios
+                                </a>
+                            </li>
+                        @endcan
                         @php
                             $notifNoLeidas = \App\Modules\Bienestar\Models\Notificacion::where('id_usuario', Auth::id())->where('leida', false)->count();
                         @endphp
