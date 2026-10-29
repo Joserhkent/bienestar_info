@@ -4,6 +4,7 @@ use App\Modules\Bienestar\Http\Controllers\AuthController;
 use App\Modules\Bienestar\Http\Controllers\CasoBienestarController;
 use App\Modules\Bienestar\Http\Controllers\CitaController;
 use App\Modules\Bienestar\Http\Controllers\DerivacionController;
+use App\Modules\Bienestar\Http\Controllers\EstudianteController;
 use App\Modules\Bienestar\Http\Controllers\NotificacionController;
 use App\Modules\Bienestar\Http\Controllers\ReporteController;
 use App\Modules\Bienestar\Http\Controllers\SolicitudApoyoController;
@@ -19,9 +20,29 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
 
     // 2. Rutas Protegidas por Autenticación General
     Route::middleware('auth')->group(function () {
-        Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+        // Rutas de cambio obligatorio de contraseña temporal (accesibles antes del middleware password.change)
+        Route::get('/cambiar-contrasena', [AuthController::class, 'showCambiarPasswordForm'])->name('cambiar-contrasena');
+        Route::post('/cambiar-contrasena', [AuthController::class, 'cambiarPassword'])->name('cambiar-contrasena.post');
 
-        // PROCESO P1: Registro y Gestión de Casos
+        // Rutas protegidas que requieren haber cambiado la contraseña temporal
+        Route::middleware('password.change')->group(function () {
+            Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+
+            // GESTIÓN DE ESTUDIANTES (Fase A - Proceso 1 BPMN)
+            Route::middleware('role:Personal de Bienestar,Administrador')->group(function () {
+                Route::get('/estudiantes', [EstudianteController::class, 'index'])->name('estudiantes.index');
+            });
+
+            Route::middleware('role:Personal de Bienestar')->group(function () {
+                Route::get('/estudiantes/crear', [EstudianteController::class, 'create'])->name('estudiantes.create');
+                Route::post('/estudiantes', [EstudianteController::class, 'store'])->name('estudiantes.store');
+                Route::get('/estudiantes/{estudiante}/editar', [EstudianteController::class, 'edit'])->whereNumber('estudiante')->name('estudiantes.edit');
+                Route::post('/estudiantes/{estudiante}', [EstudianteController::class, 'update'])->whereNumber('estudiante')->name('estudiantes.update');
+            });
+
+            Route::get('/estudiantes/{estudiante}', [EstudianteController::class, 'show'])->whereNumber('estudiante')->name('estudiantes.show');
+
+            // PROCESO P1: Registro y Gestión de Casos
         Route::middleware('role:Personal de Bienestar,Administrador')->group(function () {
             Route::get('/casos', [CasoBienestarController::class, 'index'])->name('casos.index');
         });
@@ -87,5 +108,6 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
         Route::middleware('role:Docente')->group(function () {
             Route::get('/pautas-docente', fn() => redirect()->route('bienestar.dashboard'))->name('docente.pautas');
         });
-    });
+        }); // Fin password.change
+    }); // Fin auth
 });

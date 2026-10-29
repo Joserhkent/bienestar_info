@@ -37,6 +37,7 @@ class RolMenuAccessTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Panel principal');
+        $response->assertSee('Estudiantes');
         $response->assertSee('Casos');
         $response->assertSee('Solicitudes');
         $response->assertSee('Citas');
@@ -56,6 +57,7 @@ class RolMenuAccessTest extends TestCase
         $response = $this->actingAs($this->bienestar)->get('/bienestar/dashboard');
 
         $response->assertStatus(200);
+        $response->assertSee('Estudiantes');
         $response->assertSee('Casos');
         $response->assertSee('Solicitudes');
         $response->assertSee('Citas');
@@ -109,10 +111,12 @@ class RolMenuAccessTest extends TestCase
         $response->assertSee('Notificaciones');
 
         // No ve Casos generales, Solicitudes ni Reportes
+        $response->assertDontSee('Estudiantes');
         $response->assertDontSee('Solicitudes');
         $response->assertDontSee('Reportes');
 
         // Rutas prohibidas devuelven 403 (módulo general) o 404 (ID ajeno)
+        $this->actingAs($this->especialista)->get('/bienestar/estudiantes')->assertStatus(403);
         $this->actingAs($this->especialista)->get('/bienestar/casos')->assertStatus(403);
         $this->actingAs($this->especialista)->get('/bienestar/casos/1')->assertStatus(404);
         $this->actingAs($this->especialista)->get('/bienestar/casos/crear')->assertStatus(403);
@@ -134,6 +138,7 @@ class RolMenuAccessTest extends TestCase
         $response->assertSee('Notificaciones');
 
         // No ve secciones administrativas ni especializadas
+        $response->assertDontSee('Estudiantes');
         $response->assertDontSee('Derivaciones');
         $response->assertDontSee('Horarios');
         $response->assertDontSee('Reportes');
@@ -159,6 +164,7 @@ class RolMenuAccessTest extends TestCase
         $response->assertSee('Notificaciones');
 
         // Docente NO debe ver ningún módulo de bienestar confidencial
+        $response->assertDontSee('Estudiantes');
         $response->assertDontSee('Casos');
         $response->assertDontSee('Solicitudes');
         $response->assertDontSee('Mis solicitudes');
@@ -284,5 +290,10 @@ class RolMenuAccessTest extends TestCase
             $respCaso->assertSee('Contenido reservado por confidencialidad del caso');
             $respCaso->assertDontSee('Descripcion confidencial sensible');
         }
+
+        // 7. Escritura en Estudiantes -> 403
+        $this->actingAs($this->admin)->get('/bienestar/estudiantes/crear')->assertStatus(403);
+        $this->actingAs($this->admin)->get('/bienestar/estudiantes/1/editar')->assertStatus(403);
+        $this->actingAs($this->admin)->post('/bienestar/estudiantes', [])->assertStatus(403);
     }
 }

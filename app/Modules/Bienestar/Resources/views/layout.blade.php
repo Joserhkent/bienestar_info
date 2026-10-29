@@ -82,6 +82,13 @@
                                 Panel principal
                             </a>
                         </li>
+                        @can('viewAny', App\Modules\Bienestar\Models\Estudiante::class)
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.estudiantes.*') ? 'active' : '' }}" href="{{ route('bienestar.estudiantes.index') }}">
+                                    Estudiantes
+                                </a>
+                            </li>
+                        @endcan
                         @can('viewAny', App\Modules\Bienestar\Models\CasoBienestar::class)
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('bienestar.casos.*') ? 'active' : '' }}" href="{{ route('bienestar.casos.index') }}">

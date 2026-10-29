@@ -19,6 +19,7 @@ class Usuario extends Authenticatable
         'correo',
         'contrasena_hash',
         'estado',
+        'debe_cambiar_contrasena',
         'fecha_creacion',
         'ultimo_acceso',
     ];
@@ -30,6 +31,7 @@ class Usuario extends Authenticatable
     protected function casts(): array
     {
         return [
+            'debe_cambiar_contrasena' => 'boolean',
             'fecha_creacion' => 'datetime',
             'ultimo_acceso' => 'datetime',
         ];

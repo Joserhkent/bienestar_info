@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn () => route('bienestar.login'));
         $middleware->alias([
             'role' => \App\Modules\Bienestar\Http\Middleware\CheckRole::class,
+            'password.change' => \App\Modules\Bienestar\Http\Middleware\EnsurePasswordChanged::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

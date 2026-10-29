@@ -59,6 +59,11 @@ class AuthController extends Controller
         $usuario->update(['ultimo_acceso' => now()]);
         $request->session()->regenerate();
 
+        if ($usuario->debe_cambiar_contrasena) {
+            return redirect()->route('bienestar.cambiar-contrasena')
+                ->with('warning', 'Por motivos de seguridad institucional, debe actualizar su contraseña temporal para acceder al sistema.');
+        }
+
         return redirect()->intended(route('bienestar.dashboard'))
             ->with('success', "Bienvenido(a), {$usuario->correo} [Rol: {$usuario->rol->nombre}]");
     }
@@ -124,5 +129,30 @@ class AuthController extends Controller
         }
 
         return view('bienestar::dashboard', $datos);
+    }
+
+    /**
+     * Muestra la pantalla obligatoria de cambio de contraseña temporal.
+     */
+    public function showCambiarPasswordForm(): View
+    {
+        return view('bienestar::auth.cambiar-password');
+    }
+
+    /**
+     * Procesa la actualización obligatoria de contraseña.
+     */
+    public function cambiarPassword(\App\Modules\Bienestar\Http\Requests\CambiarPasswordObligatorioRequest $request): RedirectResponse
+    {
+        /** @var Usuario $usuario */
+        $usuario = Auth::user();
+
+        $usuario->update([
+            'contrasena_hash'         => Hash::make($request->input('password')),
+            'debe_cambiar_contrasena' => false,
+        ]);
+
+        return redirect()->route('bienestar.dashboard')
+            ->with('success', 'Su contraseña ha sido actualizada con éxito.');
     }
 }

@@ -119,6 +119,27 @@ class Estudiante extends Model
     }
 
     // Scopes
+    public function getNombreCompletoAttribute(): string
+    {
+        return "{$this->nombres} {$this->apellidos}";
+    }
+
+    public function scopeBuscar(Builder $query, ?string $termino): Builder
+    {
+        if (empty($termino)) {
+            return $query;
+        }
+
+        $termino = trim($termino);
+
+        return $query->where(function ($q) use ($termino) {
+            $q->where('nombres', 'ilike', "%{$termino}%")
+              ->orWhere('apellidos', 'ilike', "%{$termino}%")
+              ->orWhere('codigo_universitario', 'ilike', "%{$termino}%")
+              ->orWhere('dni', 'ilike', "%{$termino}%");
+        });
+    }
+
     public function scopePorCiclo(Builder $query, int $ciclo): Builder
     {
         return $query->where('ciclo_actual', $ciclo);
