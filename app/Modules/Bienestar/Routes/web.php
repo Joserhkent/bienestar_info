@@ -3,6 +3,7 @@
 use App\Modules\Bienestar\Http\Controllers\AuthController;
 use App\Modules\Bienestar\Http\Controllers\CasoBienestarController;
 use App\Modules\Bienestar\Http\Controllers\CitaController;
+use App\Modules\Bienestar\Http\Controllers\DerivacionController;
 use App\Modules\Bienestar\Http\Controllers\SolicitudApoyoController;
 use Illuminate\Support\Facades\Route;
 
@@ -52,14 +53,20 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
         Route::get('/horarios', [CitaController::class, 'horarios'])->name('citas.horarios');
         Route::post('/horarios', [CitaController::class, 'guardarHorario'])->name('citas.horarios.store');
 
+        // PROCESO P4: Derivación y Seguimiento
+        Route::get('/derivaciones', [DerivacionController::class, 'index'])->name('derivaciones.index');
+        Route::get('/derivaciones/crear', [DerivacionController::class, 'create'])->name('derivaciones.create');
+        Route::post('/derivaciones', [DerivacionController::class, 'store'])->name('derivaciones.store');
+        Route::get('/derivaciones/{derivacion}', [DerivacionController::class, 'show'])->whereNumber('derivacion')->name('derivaciones.show');
+        Route::post('/derivaciones/{derivacion}/seguimientos', [DerivacionController::class, 'storeSeguimiento'])->whereNumber('derivacion')->name('derivaciones.seguimientos.store');
+        Route::post('/derivaciones/{derivacion}/aceptar', [DerivacionController::class, 'aceptar'])->whereNumber('derivacion')->name('derivaciones.aceptar');
+        Route::post('/derivaciones/{derivacion}/finalizar', [DerivacionController::class, 'finalizar'])->whereNumber('derivacion')->name('derivaciones.finalizar');
+
         // Aliases para el menú del dashboard
         Route::get('/mis-solicitudes', fn() => redirect()->route('bienestar.solicitudes.index'))->name('estudiante.solicitudes');
         Route::get('/mis-citas', fn() => redirect()->route('bienestar.citas.index'))->name('estudiante.citas');
         Route::get('/agenda', fn() => redirect()->route('bienestar.citas.index'))->name('especialista.agenda');
-
-        Route::middleware('role:Especialista')->group(function () {
-            Route::get('/seguimientos', fn() => redirect()->route('bienestar.dashboard'))->name('especialista.seguimientos');
-        });
+        Route::get('/seguimientos', fn() => redirect()->route('bienestar.derivaciones.index'))->name('especialista.seguimientos');
 
         Route::middleware('role:Docente')->group(function () {
             Route::get('/pautas-docente', fn() => redirect()->route('bienestar.dashboard'))->name('docente.pautas');

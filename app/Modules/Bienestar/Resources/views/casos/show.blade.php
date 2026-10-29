@@ -19,6 +19,13 @@
         <a href="{{ route('bienestar.casos.index') }}" class="btn btn-outline-secondary btn-sm">
             Volver
         </a>
+        @can('create', App\Modules\Bienestar\Models\Derivacion::class)
+            @if(in_array($caso->estado, ['registrado', 'en_atencion']))
+                <a href="{{ route('bienestar.derivaciones.create', ['id_caso' => $caso->id_caso]) }}" class="btn btn-outline-primary btn-sm">
+                    Derivar a especialista
+                </a>
+            @endif
+        @endcan
         @can('cambiarEstado', $caso)
             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCambiarEstado">
                 Cambiar estado

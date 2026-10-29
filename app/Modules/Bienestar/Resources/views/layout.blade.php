@@ -99,6 +99,11 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.derivaciones.*') ? 'active' : '' }}" href="{{ route('bienestar.derivaciones.index') }}">
+                                    Derivaciones
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.horarios') }}">
                                     Horarios
                                 </a>
@@ -108,6 +113,11 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('bienestar.citas.*') && !request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.index') }}">
                                     Citas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.derivaciones.*') ? 'active' : '' }}" href="{{ route('bienestar.derivaciones.index') }}">
+                                    Derivaciones
                                 </a>
                             </li>
                             <li class="nav-item">

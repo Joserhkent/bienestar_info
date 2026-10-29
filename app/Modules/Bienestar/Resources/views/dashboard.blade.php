@@ -140,13 +140,15 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-body p-3">
-                    <span class="text-muted small">Casos derivados</span>
-                    <h3 class="fw-bold my-1 text-dark">{{ $casosDerivados }}</h3>
-                    <span class="text-muted small">En atención</span>
+            <a href="{{ route('bienestar.derivaciones.index') }}" class="text-decoration-none">
+                <div class="card h-100">
+                    <div class="card-body p-3">
+                        <span class="text-muted small">Casos derivados</span>
+                        <h3 class="fw-bold my-1 text-dark">{{ $casosDerivados }}</h3>
+                        <span class="text-primary small">Ver derivaciones &rarr;</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
