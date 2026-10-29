@@ -203,7 +203,7 @@ class ReporteService
     }
 
     /**
-     * Ofuscación de k-anonimato: Muestra 'menos de 5' cuando una categoría tiene pocos casos.
+     * Técnica de supresión de celdas pequeñas: Muestra 'menos de 5' cuando una categoría tiene pocos casos.
      */
     public static function formatearCantidad(int $cant): string
     {

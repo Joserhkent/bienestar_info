@@ -5,33 +5,33 @@ Sistema integral de gestión de Bienestar Universitario: atención y registro de
 
 ---
 
-## 1. Requisitos y Despliegue con Docker
+## 1. Cómo Levantar el Proyecto (Despliegue Local)
 
 El sistema se ejecuta en contenedores Docker mediante `docker-compose.yml`:
 - **Nginx (Webserver)**: `http://localhost:8080/bienestar`
 - **PHP 8.3 FPM (App)**: Laravel 12
 - **PostgreSQL 16 (DB)**: Esquema dedicado `bienestar` en la base de datos `portal_unt` (puerto host `5433`, interno `5432`).
 
-Para levantar los contenedores:
+### Paso 1: Levantar los contenedores
 ```bash
 docker compose up -d
 ```
 
----
+### Paso 2: Base de datos de pruebas (si el volumen Docker ya existía)
+Si el contenedor de base de datos ya tenía un volumen previo, asegure la existencia de la base de datos de pruebas `portal_unt_test`:
+```bash
+docker compose exec postgres psql -U bienestar_user -d portal_unt -c "SELECT 'CREATE DATABASE portal_unt_test OWNER bienestar_user' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'portal_unt_test')\gexec"
+docker compose exec postgres psql -U bienestar_user -d portal_unt_test -c "CREATE SCHEMA IF NOT EXISTS bienestar;"
+```
 
-## 2. Reinicio de Entorno de Demostración (`reiniciar-demo.sh`)
-
-Para restablecer la base de datos de desarrollo a su estado inicial limpio con todos los catálogos y datos de prueba del seeder:
-
+### Paso 3: Inicializar la base de datos con los datos de demostración
 ```bash
 ./reiniciar-demo.sh
 ```
 
-El script ejecuta automáticamente `php artisan migrate:fresh --seed`, sincroniza las secuencias de claves primarias en PostgreSQL y verifica los enlaces de almacenamiento.
-
 ---
 
-## 3. Cuentas de Acceso para Demostración
+## 2. Cuentas de Acceso para Demostración
 
 Todas las cuentas de prueba comparten la misma contraseña:
 > **Contraseña:** `password123`
@@ -49,17 +49,19 @@ Todas las cuentas de prueba comparten la misma contraseña:
 
 ---
 
-## 4. Ejecución de Pruebas Automatizadas
+## 3. Ejecución de Pruebas Automatizadas
 
 El proyecto cuenta con una base de datos de pruebas independiente (`portal_unt_test`) configurada en `phpunit.xml` para garantizar que la ejecución de pruebas no altere los datos de desarrollo.
 
 ```bash
-# Ejecutar toda la suite de pruebas
+# Ejecutar toda la suite de pruebas (54 tests)
 docker compose exec app php artisan test
 
-# Ejecutar por proceso
+# Ejecutar por proceso o verificación de roles
 docker compose exec app php artisan test --filter=P1CasosTest
 docker compose exec app php artisan test --filter=P2SolicitudesTest
 docker compose exec app php artisan test --filter=P3CitasTest
 docker compose exec app php artisan test --filter=P4DerivacionesTest
+docker compose exec app php artisan test --filter=P5NotificacionesReportesTest
+docker compose exec app php artisan test --filter=RolMenuAccessTest
 ```

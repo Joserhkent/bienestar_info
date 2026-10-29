@@ -240,7 +240,7 @@ class P4DerivacionesTest extends TestCase
         $this->casoPrueba->refresh();
         $this->assertEquals('cerrado', $this->casoPrueba->estado);
 
-        // Historial inmutable registra el informe de conclusión
+        // Registro de auditoría registra el informe de conclusión
         $historial = HistorialEstadoCaso::where('id_caso', $this->casoPrueba->id_caso)
             ->latest('id_historial')
             ->firstOrFail();

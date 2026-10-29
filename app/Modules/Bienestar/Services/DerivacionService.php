@@ -17,7 +17,7 @@ class DerivacionService
      * Deriva un caso hacia un especialista dentro de una transacción atómica:
      * 1. Registra en bienestar.derivacion.
      * 2. Actualiza caso_bienestar a estado 'derivado'.
-     * 3. Registra auditoría inmutable en historial_estado_caso.
+     * 3. Registra el registro de auditoría en historial_estado_caso.
      * 4. Notifica al especialista asignado.
      */
     public function derivarCaso(array $data, Usuario $usuarioDeriva): Derivacion
@@ -41,7 +41,7 @@ class DerivacionService
             $caso->estado = 'derivado';
             $caso->save();
 
-            // 3. Auditoría inmutable de cambio de estado
+            // 3. Registro de auditoría de cambio de estado
             $nombreEsp = "{$especialista->nombres} {$especialista->apellidos}";
             HistorialEstadoCaso::create([
                 'id_caso' => $caso->id_caso,
@@ -127,7 +127,7 @@ class DerivacionService
      * Finaliza la derivación tras concluir el plan de atención:
      * 1. Actualiza la derivación a 'finalizada'.
      * 2. Pasa el caso a estado 'cerrado' en DB::transaction().
-     * 3. Registra auditoría inmutable en historial_estado_caso con el informe de conclusión.
+     * 3. Registra el registro de auditoría en historial_estado_caso con el informe de conclusión.
      * 4. Emite notificación al usuario que derivó el caso.
      */
     public function finalizarDerivacion(Derivacion $derivacion, string $informeConclusion, Usuario $usuario): Derivacion

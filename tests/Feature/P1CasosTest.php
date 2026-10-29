@@ -68,7 +68,7 @@ class P1CasosTest extends TestCase
     }
 
     /**
-     * Test P1.2: Transición de estado con auditoría inmutable en historial_estado_caso
+     * Test P1.2: Transición de estado con registro de auditoría en historial_estado_caso
      */
     public function test_personal_bienestar_can_change_case_state_and_audit_history_is_appended(): void
     {

@@ -25,7 +25,16 @@ class BienestarProduccionSeeder extends Seeder
 
         // 2. Cuenta inicial de Administrador / Dirección de Escuela
         $adminEmail = env('INITIAL_ADMIN_EMAIL', 'admin@unitru.edu.pe');
-        $adminPassword = env('INITIAL_ADMIN_PASSWORD', 'AdminUNT2026!Seguro');
+        $adminPassword = env('INITIAL_ADMIN_PASSWORD');
+
+        if (empty($adminPassword)) {
+            if ($this->command) {
+                $adminPassword = $this->command->secret('Ingrese la contrasena para el Administrador inicial de produccion:');
+            }
+            if (empty($adminPassword)) {
+                throw new \InvalidArgumentException('Debe definir la variable de entorno INITIAL_ADMIN_PASSWORD o ingresar una contrasena interactiva para ejecutar el seeder de produccion.');
+            }
+        }
 
         DB::table('bienestar.usuario')->updateOrInsert(
             ['correo' => $adminEmail],
