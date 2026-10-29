@@ -25,15 +25,37 @@
             </form>
         @endif
         @if($derivacion->estado !== 'finalizada')
-            <form action="{{ route('bienestar.derivaciones.finalizar', $derivacion->id_derivacion) }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm('¿Desea marcar esta derivación como finalizada?')">
-                    Finalizar derivación
-                </button>
-            </form>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalFinalizar">
+                Concluir derivación y cerrar caso
+            </button>
         @endif
     </div>
 </div>
+
+@if($derivacion->estado !== 'finalizada')
+    <div class="modal fade" id="modalFinalizar" tabindex="-1" aria-labelledby="modalFinalizarLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="{{ route('bienestar.derivaciones.finalizar', $derivacion->id_derivacion) }}" method="POST" class="modal-content">
+                @csrf
+                <div class="modal-header py-2">
+                    <h6 class="modal-title fw-semibold text-dark" id="modalFinalizarLabel">Conclusión de derivación</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-2">Al concluir la atención especializada, el expediente del caso pasará a estado <strong>cerrado</strong> y se registrará el informe final en el historial.</p>
+                    <div class="mb-2">
+                        <label for="informe_conclusion" class="form-label text-muted small">Informe de conclusión <span class="text-danger">*</span></label>
+                        <textarea name="informe_conclusion" id="informe_conclusion" rows="4" class="form-control form-control-sm" placeholder="Resumen de intervenciones realizadas, logros y recomendaciones finales..." required minlength="10"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Confirmar cierre</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endif
 
 <div class="row g-3">
     <!-- Columna izquierda: Datos del caso y derivación -->

@@ -211,7 +211,7 @@ class P4DerivacionesTest extends TestCase
     }
 
     /**
-     * Test P4.7: Especialista asignado puede finalizar la derivación.
+     * Test P4.7: Especialista asignado finaliza la derivación y el caso pasa a 'cerrado' con informe de conclusión.
      */
     public function test_assigned_specialist_can_finalize_derivacion(): void
     {
@@ -224,11 +224,28 @@ class P4DerivacionesTest extends TestCase
             'fecha_derivacion' => now(),
         ]);
 
-        $response = $this->actingAs($this->especialista1)->post("/bienestar/derivaciones/{$derivacion->id_derivacion}/finalizar");
+        $informe = 'Estudiante concluyó favorablemente el programa de acompañamiento con mejoría en rendimiento.';
+
+        $response = $this->actingAs($this->especialista1)->post("/bienestar/derivaciones/{$derivacion->id_derivacion}/finalizar", [
+            'informe_conclusion' => $informe,
+        ]);
 
         $response->assertRedirect("/bienestar/derivaciones/{$derivacion->id_derivacion}");
+
+        // Derivación finalizada
         $derivacion->refresh();
         $this->assertEquals('finalizada', $derivacion->estado);
+
+        // Caso pasa a 'cerrado'
+        $this->casoPrueba->refresh();
+        $this->assertEquals('cerrado', $this->casoPrueba->estado);
+
+        // Historial inmutable registra el informe de conclusión
+        $historial = HistorialEstadoCaso::where('id_caso', $this->casoPrueba->id_caso)
+            ->latest('id_historial')
+            ->firstOrFail();
+        $this->assertEquals('cerrado', $historial->estado_nuevo);
+        $this->assertStringContainsString($informe, $historial->comentario);
     }
 
     /**

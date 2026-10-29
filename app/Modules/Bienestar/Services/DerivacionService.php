@@ -124,13 +124,47 @@ class DerivacionService
     }
 
     /**
-     * Finaliza la derivación tras concluir el plan de atención.
+     * Finaliza la derivación tras concluir el plan de atención:
+     * 1. Actualiza la derivación a 'finalizada'.
+     * 2. Pasa el caso a estado 'cerrado' en DB::transaction().
+     * 3. Registra auditoría inmutable en historial_estado_caso con el informe de conclusión.
+     * 4. Emite notificación al usuario que derivó el caso.
      */
-    public function finalizarDerivacion(Derivacion $derivacion): Derivacion
+    public function finalizarDerivacion(Derivacion $derivacion, string $informeConclusion, Usuario $usuario): Derivacion
     {
-        $derivacion->estado = 'finalizada';
-        $derivacion->save();
+        return DB::transaction(function () use ($derivacion, $informeConclusion, $usuario) {
+            $derivacion->estado = 'finalizada';
+            $derivacion->save();
 
-        return $derivacion->fresh();
+            $caso = $derivacion->caso;
+            if ($caso) {
+                $estadoAnterior = $caso->estado;
+                $caso->estado = 'cerrado';
+                $caso->save();
+
+                HistorialEstadoCaso::create([
+                    'id_caso' => $caso->id_caso,
+                    'id_usuario' => $usuario->id_usuario,
+                    'estado_anterior' => $estadoAnterior,
+                    'estado_nuevo' => 'cerrado',
+                    'fecha_cambio' => now(),
+                    'comentario' => "Caso cerrado por especialista tras finalizar derivación. Informe: {$informeConclusion}",
+                ]);
+
+                if ($derivacion->id_usuario_deriva) {
+                    Notificacion::create([
+                        'id_usuario' => $derivacion->id_usuario_deriva,
+                        'id_caso' => $caso->id_caso,
+                        'titulo' => 'Caso cerrado por especialista',
+                        'mensaje' => 'Se ha concluido la atención especializada del caso #CAS-' . str_pad($caso->id_caso, 4, '0', STR_PAD_LEFT) . ' y el expediente ha sido cerrado.',
+                        'canal' => 'sistema',
+                        'fecha_envio' => now(),
+                        'leida' => false,
+                    ]);
+                }
+            }
+
+            return $derivacion->fresh(['caso']);
+        });
     }
 }

@@ -132,16 +132,24 @@ class DerivacionController extends Controller
     }
 
     /**
-     * Concluir la derivación.
+     * Concluir la derivación y cerrar el caso con informe de conclusión.
      */
-    public function finalizar(Derivacion $derivacion)
+    public function finalizar(Request $request, Derivacion $derivacion)
     {
         $this->authorize('update', $derivacion);
 
-        $this->derivacionService->finalizarDerivacion($derivacion);
+        $validated = $request->validate([
+            'informe_conclusion' => ['required', 'string', 'min:10', 'max:3000'],
+        ], [
+            'informe_conclusion.required' => 'El informe de conclusión es obligatorio para cerrar el caso.',
+            'informe_conclusion.min' => 'El informe de conclusión debe tener al menos :min caracteres.',
+            'informe_conclusion.max' => 'El informe de conclusión no puede exceder los :max caracteres.',
+        ]);
+
+        $this->derivacionService->finalizarDerivacion($derivacion, $validated['informe_conclusion'], $request->user());
 
         return redirect()
             ->route('bienestar.derivaciones.show', $derivacion->id_derivacion)
-            ->with('success', 'La derivación ha sido finalizada.');
+            ->with('success', 'La derivación ha sido concluida y el expediente del caso ha sido cerrado.');
     }
 }
