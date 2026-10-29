@@ -71,14 +71,26 @@
             <div class="card-body">
                 <div class="mb-2">
                     <span class="text-muted small d-block">Caso:</span>
-                    <a href="{{ route('bienestar.casos.show', $derivacion->id_caso) }}" class="fw-semibold text-decoration-none">
-                        #CAS-{{ str_pad($derivacion->id_caso, 4, '0', STR_PAD_LEFT) }} ({{ $derivacion->caso?->tipoCaso?->nombre }})
-                    </a>
+                    @can('view', $derivacion->caso)
+                        <a href="{{ route('bienestar.casos.show', $derivacion->id_caso) }}" class="fw-semibold text-decoration-none">
+                            #CAS-{{ str_pad($derivacion->id_caso, 4, '0', STR_PAD_LEFT) }} ({{ $derivacion->caso?->tipoCaso?->nombre }})
+                        </a>
+                    @else
+                        <span class="fw-semibold text-dark">
+                            #CAS-{{ str_pad($derivacion->id_caso, 4, '0', STR_PAD_LEFT) }} ({{ $derivacion->caso?->tipoCaso?->nombre }})
+                        </span>
+                    @endcan
+                </div>
+                <div class="mb-2">
+                    <span class="text-muted small d-block">Tipo de caso y prioridad:</span>
+                    <span class="badge bg-light text-dark border">{{ $derivacion->caso?->tipoCaso?->nombre }}</span>
+                    <span class="badge bg-light text-dark border">{{ ucfirst($derivacion->caso?->prioridad ?? 'Normal') }}</span>
                 </div>
                 <div class="mb-2">
                     <span class="text-muted small d-block">Estudiante:</span>
                     <strong class="text-dark">{{ $derivacion->caso?->estudiante?->nombres }} {{ $derivacion->caso?->estudiante?->apellidos }}</strong>
                     <span class="text-muted small d-block">Código: {{ $derivacion->caso?->estudiante?->codigo_universitario }}</span>
+                    <span class="text-muted small d-block">Ciclo: {{ $derivacion->caso?->estudiante?->ciclo_actual ? 'Ciclo ' . $derivacion->caso?->estudiante?->ciclo_actual : 'No registrado' }}</span>
                 </div>
                 <div class="mb-2">
                     <span class="text-muted small d-block">Especialista asignado:</span>
@@ -173,7 +185,7 @@
                                 @endif
                             @else
                                 <div class="p-2 bg-light rounded border text-muted small mb-2">
-                                    <em>Contenido reservado para el especialista tratante y personal de bienestar.</em>
+                                    <em>Contenido reservado para el especialista tratante.</em>
                                 </div>
                             @endcan
                             @if($seg->proxima_fecha)

@@ -96,7 +96,7 @@ class DerivacionController extends Controller
     {
         $this->authorize('view', $derivacion);
 
-        $derivacion->load(['caso.estudiante.usuario', 'especialista.usuario', 'usuarioDeriva', 'seguimientos']);
+        $derivacion->load(['caso.estudiante.usuario', 'caso.tipoCaso', 'especialista.usuario', 'usuarioDeriva', 'seguimientos']);
 
         return view('bienestar::derivaciones.show', compact('derivacion'));
     }

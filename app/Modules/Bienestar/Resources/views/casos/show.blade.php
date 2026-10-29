@@ -76,7 +76,11 @@
                 <span class="fw-semibold text-dark">Descripción ({{ $caso->tipoCaso->nombre }})</span>
             </div>
             <div class="card-body">
-                <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $caso->descripcion }}</p>
+                @if($caso->confidencial && auth()->user()->rol?->nombre === 'Administrador')
+                    <p class="mb-0 text-muted fst-italic small">Contenido reservado por confidencialidad del caso.</p>
+                @else
+                    <p class="mb-0 text-dark" style="white-space: pre-line;">{{ $caso->descripcion }}</p>
+                @endif
             </div>
             @if($caso->fecha_cierre)
                 <div class="card-footer bg-light py-2 text-muted small">

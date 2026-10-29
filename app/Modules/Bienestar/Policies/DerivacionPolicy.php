@@ -32,22 +32,16 @@ class DerivacionPolicy
     }
 
     /**
-     * Ver notas clínicas confidenciales y acuerdos: Solo especialista asignado y Personal de Bienestar.
-     * El Administrador solo ve fechas y estado (supervisión institucional).
+     * Ver notas clínicas confidenciales y acuerdos: Exclusivo del especialista tratante asignado.
+     * Bienestar y Administrador solo supervisan fechas, sesiones y estado (secreto profesional médico).
      */
     public function verNotasClinicas(Usuario $user, Derivacion $derivacion): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
 
-        if ($rol === 'Especialista' && $user->especialista) {
-            return $derivacion->id_especialista === $user->especialista->id_especialista;
-        }
-
-        if ($rol === 'Personal de Bienestar') {
-            return true;
-        }
-
-        return false;
+        return $rol === 'Especialista'
+            && $user->especialista
+            && $derivacion->id_especialista === $user->especialista->id_especialista;
     }
 
     /**
@@ -59,33 +53,23 @@ class DerivacionPolicy
     }
 
     /**
-     * Actualizar estado o gestionar la derivación (aceptar, finalizar)
+     * Actualizar estado o gestionar la derivación (aceptar, finalizar): Exclusivo del Especialista asignado
      */
     public function update(Usuario $user, Derivacion $derivacion): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
 
-        if ($rol === 'Personal de Bienestar') {
-            return true;
-        }
-
-        if ($rol === 'Especialista' && $user->especialista) {
-            return $derivacion->id_especialista === $user->especialista->id_especialista;
-        }
-
-        return false;
+        return $rol === 'Especialista'
+            && $user->especialista
+            && $derivacion->id_especialista === $user->especialista->id_especialista;
     }
 
     /**
-     * Registrar sesión de seguimiento: El Especialista asignado o Personal de Bienestar
+     * Registrar sesión de seguimiento: Exclusivo del Especialista asignado
      */
     public function registrarSeguimiento(Usuario $user, Derivacion $derivacion): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
-
-        if ($rol === 'Personal de Bienestar') {
-            return true;
-        }
 
         return $rol === 'Especialista'
             && $user->especialista

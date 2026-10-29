@@ -21,30 +21,16 @@ class CasoBienestarPolicy
 
     /**
      * Ver detalle de un caso:
-     * - Administrador y Personal de Bienestar: Sí (Supervisión)
-     * - Especialista: Solo si el caso le fue derivado
-     * - Estudiante: Solo su propio caso y SIEMPRE que NO sea confidencial
+     * - Administrador y Personal de Bienestar: Sí (Supervisión y gestión institucional)
+     * - Especialista: NUNCA (bloqueado; atiende directamente desde derivaciones.show)
+     * - Estudiante: NUNCA (interactúa exclusivamente mediante solicitudes y citas)
      * - Docente: NUNCA
      */
     public function view(Usuario $user, CasoBienestar $caso): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
 
-        if ($rol === 'Administrador' || $rol === 'Personal de Bienestar') {
-            return true;
-        }
-
-        if ($rol === 'Especialista' && $user->especialista) {
-            return $caso->derivaciones()
-                ->where('id_especialista', $user->especialista->id_especialista)
-                ->exists();
-        }
-
-        if ($rol === 'Estudiante' && $user->estudiante) {
-            return $caso->id_estudiante === $user->estudiante->id_estudiante && !$caso->confidencial;
-        }
-
-        return false;
+        return in_array($rol, ['Administrador', 'Personal de Bienestar'], true);
     }
 
     /**

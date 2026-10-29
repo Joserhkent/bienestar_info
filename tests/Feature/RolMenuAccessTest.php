@@ -67,6 +67,29 @@ class RolMenuAccessTest extends TestCase
         // Ruta prohibida devuelve 403
         $this->actingAs($this->bienestar)->get('/bienestar/reportes')->assertStatus(403);
         $this->actingAs($this->bienestar)->get('/bienestar/reportes/exportar-csv')->assertStatus(403);
+        $this->actingAs($this->bienestar)->get('/bienestar/horarios')->assertStatus(403);
+
+        // Acciones clínicas de especialista denegadas a Bienestar (BPMN)
+        $cita = Cita::first();
+        $derivacion = Derivacion::first();
+
+        if ($cita) {
+            $this->actingAs($this->bienestar)->post("/bienestar/citas/{$cita->id_cita}/confirmar")->assertStatus(403);
+            $this->actingAs($this->bienestar)->post("/bienestar/citas/{$cita->id_cita}/atender")->assertStatus(403);
+        }
+
+        if ($derivacion) {
+            $this->actingAs($this->bienestar)->post("/bienestar/derivaciones/{$derivacion->id_derivacion}/aceptar")->assertStatus(403);
+            $this->actingAs($this->bienestar)->post("/bienestar/derivaciones/{$derivacion->id_derivacion}/seguimientos", [
+                'nota_avance' => 'Nota bienestar intento',
+            ])->assertStatus(403);
+
+            // Bienestar no ve notas clínicas confidenciales del especialista
+            $respDeriv = $this->actingAs($this->bienestar)->get("/bienestar/derivaciones/{$derivacion->id_derivacion}");
+            $respDeriv->assertStatus(200);
+            $respDeriv->assertSee('Contenido reservado para el especialista tratante');
+            $respDeriv->assertDontSee('Nota de evolución:');
+        }
     }
 
     /**
@@ -88,6 +111,7 @@ class RolMenuAccessTest extends TestCase
 
         // Rutas prohibidas devuelven 403
         $this->actingAs($this->especialista)->get('/bienestar/casos')->assertStatus(403);
+        $this->actingAs($this->especialista)->get('/bienestar/casos/1')->assertStatus(403);
         $this->actingAs($this->especialista)->get('/bienestar/casos/crear')->assertStatus(403);
         $this->actingAs($this->especialista)->get('/bienestar/solicitudes')->assertStatus(403);
         $this->actingAs($this->especialista)->get('/bienestar/reportes')->assertStatus(403);
@@ -113,6 +137,7 @@ class RolMenuAccessTest extends TestCase
 
         // Rutas prohibidas devuelven 403
         $this->actingAs($this->estudiante)->get('/bienestar/casos')->assertStatus(403);
+        $this->actingAs($this->estudiante)->get('/bienestar/casos/1')->assertStatus(403);
         $this->actingAs($this->estudiante)->get('/bienestar/casos/crear')->assertStatus(403);
         $this->actingAs($this->estudiante)->get('/bienestar/derivaciones')->assertStatus(403);
         $this->actingAs($this->estudiante)->get('/bienestar/derivaciones/crear')->assertStatus(403);
@@ -240,6 +265,18 @@ class RolMenuAccessTest extends TestCase
             $response->assertSee('Historial de sesiones');
             $response->assertSee('Contenido reservado para el especialista tratante');
             $response->assertDontSee('Nota de evolución:');
+        }
+
+        // 5. Administrador NO puede descargar documentos adjuntos (exclusivo estudiante dueño y bienestar)
+        $this->actingAs($this->admin)->get('/bienestar/solicitudes/documentos/1/descargar')->assertStatus(403);
+
+        // 6. En casos confidenciales, el Administrador ve tipo, estado y fechas pero NO la descripción
+        if ($caso) {
+            $caso->update(['confidencial' => true, 'descripcion' => 'Descripcion confidencial sensible']);
+            $respCaso = $this->actingAs($this->admin)->get("/bienestar/casos/{$caso->id_caso}");
+            $respCaso->assertStatus(200);
+            $respCaso->assertSee('Contenido reservado por confidencialidad del caso');
+            $respCaso->assertDontSee('Descripcion confidencial sensible');
         }
     }
 }

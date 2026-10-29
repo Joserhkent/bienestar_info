@@ -17,8 +17,8 @@ class DocumentoAdjuntoPolicy
     {
         $rol = $user->rol ? $user->rol->nombre : '';
 
-        // Personal de Bienestar y Administrador pueden ver todos los sustentos adjuntos
-        if ($rol === 'Personal de Bienestar' || $rol === 'Administrador') {
+        // Personal de Bienestar puede ver todos los sustentos adjuntos para dictaminar
+        if ($rol === 'Personal de Bienestar') {
             return true;
         }
 

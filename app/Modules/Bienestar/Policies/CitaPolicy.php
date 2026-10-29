@@ -45,15 +45,11 @@ class CitaPolicy
     }
 
     /**
-     * Confirmar cita: Especialista asignado o Personal de Bienestar
+     * Confirmar cita: Exclusivo del Especialista asignado
      */
     public function confirmar(Usuario $user, Cita $cita): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
-
-        if ($rol === 'Personal de Bienestar') {
-            return true;
-        }
 
         return $rol === 'Especialista'
             && $user->especialista
@@ -62,15 +58,11 @@ class CitaPolicy
     }
 
     /**
-     * Cancelar cita: El estudiante dueño, el especialista asignado o Bienestar
+     * Cancelar cita: El estudiante dueño o el especialista asignado
      */
     public function cancelar(Usuario $user, Cita $cita): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
-
-        if ($rol === 'Personal de Bienestar') {
-            return true;
-        }
 
         if ($rol === 'Estudiante' && $user->estudiante) {
             return $cita->id_estudiante === $user->estudiante->id_estudiante;
@@ -84,15 +76,11 @@ class CitaPolicy
     }
 
     /**
-     * Registrar atención realizada
+     * Registrar atención realizada: Exclusivo del Especialista asignado
      */
     public function atender(Usuario $user, Cita $cita): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
-
-        if ($rol === 'Personal de Bienestar') {
-            return true;
-        }
 
         return $rol === 'Especialista'
             && $user->especialista
@@ -101,20 +89,20 @@ class CitaPolicy
     }
 
     /**
-     * Registrar nuevo horario disponible para citas (P3)
+     * Registrar nuevo horario disponible para citas (P3): Exclusivo del Especialista
      */
     public function crearHorario(Usuario $user): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
-        return in_array($rol, ['Personal de Bienestar', 'Especialista'], true);
+        return $rol === 'Especialista';
     }
 
     /**
-     * Gestión de horarios disponibles de atención
+     * Gestión de horarios disponibles de atención: Exclusivo del Especialista
      */
     public function gestionarHorarios(Usuario $user): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
-        return in_array($rol, ['Especialista', 'Personal de Bienestar'], true);
+        return $rol === 'Especialista';
     }
 }
