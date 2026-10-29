@@ -36,6 +36,10 @@ class BienestarProduccionSeeder extends Seeder
             }
         }
 
+        if ($adminPassword === 'password123') {
+            throw new \InvalidArgumentException('Por razones de seguridad, la contrasena de produccion no puede ser la clave predeterminada de prueba "password123".');
+        }
+
         DB::table('bienestar.usuario')->updateOrInsert(
             ['correo' => $adminEmail],
             [
