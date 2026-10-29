@@ -355,5 +355,31 @@ class BienestarDatabaseSeeder extends Seeder
             'fecha_envio' => '2026-10-23 12:05:00',
             'leida' => true,
         ]);
+
+        // 14. Sincronizar secuencias de PostgreSQL para evitar colisiones de IDs en nuevas inserciones
+        $tablasConSerial = [
+            'rol' => 'id_rol',
+            'usuario' => 'id_usuario',
+            'estudiante' => 'id_estudiante',
+            'especialista' => 'id_especialista',
+            'perfil_socioeconomico' => 'id_perfil',
+            'tipo_condicion' => 'id_tipo_condicion',
+            'deporte' => 'id_deporte',
+            'tipo_caso' => 'id_tipo_caso',
+            'caso_bienestar' => 'id_caso',
+            'historial_estado_caso' => 'id_historial',
+            'derivacion' => 'id_derivacion',
+            'seguimiento' => 'id_seguimiento',
+            'solicitud_apoyo' => 'id_solicitud',
+            'documento_adjunto' => 'id_documento',
+            'horario_disponible' => 'id_horario',
+            'cita' => 'id_cita',
+            'notificacion' => 'id_notificacion',
+            'reporte' => 'id_reporte',
+        ];
+
+        foreach ($tablasConSerial as $tabla => $pk) {
+            DB::statement("SELECT setval(pg_get_serial_sequence('bienestar.{$tabla}', '{$pk}'), COALESCE((SELECT MAX({$pk}) FROM bienestar.{$tabla}), 1));");
+        }
     }
 }

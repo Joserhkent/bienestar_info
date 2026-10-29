@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Bienestar\Http\Controllers\AuthController;
+use App\Modules\Bienestar\Http\Controllers\CasoBienestarController;
 use Illuminate\Support\Facades\Route;
 
 // El grupo 'web' es obligatorio para inicializar sesiones, cookies y ShareErrorsFromSession ($errors)
@@ -15,9 +16,19 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 
-        // Módulos protegidos por Rol (Entregable 5 conectará los controladores detallados)
+        // PROCESO P1: Registro y Gestión de Casos
         Route::middleware('role:Personal de Bienestar,Administrador')->group(function () {
-            Route::get('/casos', fn() => redirect()->route('bienestar.dashboard'))->name('casos.index');
+            Route::get('/casos', [CasoBienestarController::class, 'index'])->name('casos.index');
+            Route::get('/casos/crear', [CasoBienestarController::class, 'create'])->name('casos.create');
+            Route::post('/casos', [CasoBienestarController::class, 'store'])->name('casos.store');
+            Route::post('/casos/{caso}/cambiar-estado', [CasoBienestarController::class, 'cambiarEstado'])->name('casos.cambiar-estado');
+        });
+
+        // Ver detalle de caso (protegido por CasoBienestarPolicy::view)
+        Route::get('/casos/{caso}', [CasoBienestarController::class, 'show'])->name('casos.show');
+
+        // Módulos de los siguientes procesos (P2 a P5)
+        Route::middleware('role:Personal de Bienestar,Administrador')->group(function () {
             Route::get('/solicitudes/revision', fn() => redirect()->route('bienestar.dashboard'))->name('solicitudes.revision');
         });
 

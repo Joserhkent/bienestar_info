@@ -64,7 +64,14 @@
             <h5 class="fw-bold mb-0 text-dark">
                 <i class="bi bi-journal-medical text-primary me-2"></i>Expedientes de Casos Recientes (Proceso P1)
             </h5>
-            <span class="badge bg-light text-dark border">Confidencialidad Estatuto UNT</span>
+            <div class="d-flex gap-2">
+                <a href="{{ route('bienestar.casos.create') }}" class="btn btn-primary btn-sm fw-semibold">
+                    <i class="bi bi-plus-circle me-1"></i>Nuevo Caso
+                </a>
+                <a href="{{ route('bienestar.casos.index') }}" class="btn btn-outline-secondary btn-sm">
+                    Ver todos ({{ $totalCasos }})
+                </a>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -78,12 +85,13 @@
                             <th>Estado</th>
                             <th>Confidencial</th>
                             <th>Fecha</th>
+                            <th class="text-end pe-3">Acción</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($ultimosCasos as $caso)
                             <tr>
-                                <td class="fw-bold">#CAS-{{ str_pad($caso->id_caso, 4, '0', STR_PAD_LEFT) }}</td>
+                                <td class="fw-bold text-primary">#CAS-{{ str_pad($caso->id_caso, 4, '0', STR_PAD_LEFT) }}</td>
                                 <td>
                                     <strong>{{ $caso->estudiante->nombres }} {{ $caso->estudiante->apellidos }}</strong>
                                     <span class="d-block small text-muted">Cod: {{ $caso->estudiante->codigo_universitario }}</span>
@@ -109,10 +117,15 @@
                                     @endif
                                 </td>
                                 <td class="small text-muted">{{ $caso->fecha_registro->format('d/m/Y') }}</td>
+                                <td class="text-end pe-3">
+                                    <a href="{{ route('bienestar.casos.show', $caso->id_caso) }}" class="btn btn-outline-primary btn-sm fw-semibold">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">No se registran casos activos.</td>
+                                <td colspan="8" class="text-center py-4 text-muted">No se registran casos activos.</td>
                             </tr>
                         @endforelse
                     </tbody>

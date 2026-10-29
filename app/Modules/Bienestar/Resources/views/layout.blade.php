@@ -35,6 +35,13 @@
                                 <i class="bi bi-speedometer2 me-1"></i>Panel Principal
                             </a>
                         </li>
+                        @if(in_array(Auth::user()->rol->nombre ?? '', ['Personal de Bienestar', 'Administrador']))
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.casos.*') ? 'active fw-bold' : '' }}" href="{{ route('bienestar.casos.index') }}">
+                                    <i class="bi bi-folder2-open me-1"></i>Casos de Bienestar (P1)
+                                </a>
+                            </li>
+                        @endif
                     @endauth
                 </ul>
 
