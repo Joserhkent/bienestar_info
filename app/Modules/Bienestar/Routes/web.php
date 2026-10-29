@@ -2,6 +2,7 @@
 
 use App\Modules\Bienestar\Http\Controllers\AuthController;
 use App\Modules\Bienestar\Http\Controllers\CasoBienestarController;
+use App\Modules\Bienestar\Http\Controllers\CitaController;
 use App\Modules\Bienestar\Http\Controllers\SolicitudApoyoController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,14 +41,23 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
         Route::post('/solicitudes/{solicitud}/dictaminar', [SolicitudApoyoController::class, 'dictaminar'])->whereNumber('solicitud')->name('solicitudes.dictaminar');
         Route::get('/solicitudes/documentos/{documento}/descargar', [SolicitudApoyoController::class, 'descargarDocumento'])->whereNumber('documento')->name('solicitudes.documentos.descargar');
 
+        // PROCESO P3: Agendamiento de Citas
+        Route::get('/citas', [CitaController::class, 'index'])->name('citas.index');
+        Route::get('/citas/crear', [CitaController::class, 'create'])->name('citas.create');
+        Route::post('/citas', [CitaController::class, 'store'])->name('citas.store');
+        Route::get('/citas/{cita}', [CitaController::class, 'show'])->whereNumber('cita')->name('citas.show');
+        Route::post('/citas/{cita}/confirmar', [CitaController::class, 'confirmar'])->whereNumber('cita')->name('citas.confirmar');
+        Route::post('/citas/{cita}/cancelar', [CitaController::class, 'cancelar'])->whereNumber('cita')->name('citas.cancelar');
+        Route::post('/citas/{cita}/atender', [CitaController::class, 'atender'])->whereNumber('cita')->name('citas.atender');
+        Route::get('/horarios', [CitaController::class, 'horarios'])->name('citas.horarios');
+        Route::post('/horarios', [CitaController::class, 'guardarHorario'])->name('citas.horarios.store');
+
         // Aliases para el menú del dashboard
         Route::get('/mis-solicitudes', fn() => redirect()->route('bienestar.solicitudes.index'))->name('estudiante.solicitudes');
-        Route::middleware('role:Estudiante')->group(function () {
-            Route::get('/mis-citas', fn() => redirect()->route('bienestar.dashboard'))->name('estudiante.citas');
-        });
+        Route::get('/mis-citas', fn() => redirect()->route('bienestar.citas.index'))->name('estudiante.citas');
+        Route::get('/agenda', fn() => redirect()->route('bienestar.citas.index'))->name('especialista.agenda');
 
         Route::middleware('role:Especialista')->group(function () {
-            Route::get('/agenda', fn() => redirect()->route('bienestar.dashboard'))->name('especialista.agenda');
             Route::get('/seguimientos', fn() => redirect()->route('bienestar.dashboard'))->name('especialista.seguimientos');
         });
 

@@ -206,21 +206,36 @@
         <!-- Mis citas -->
         <div class="col-md-6">
             <div class="card h-100">
-                <div class="card-header bg-white py-2">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
                     <span class="fw-semibold text-dark">Mis citas</span>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('bienestar.citas.create') }}" class="btn btn-primary btn-sm">
+                            Agendar cita
+                        </a>
+                        <a href="{{ route('bienestar.citas.index') }}" class="btn btn-outline-secondary btn-sm">
+                            Ver todas
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @forelse($misCitas as $cita)
                             <li class="list-group-item p-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-semibold text-dark">{{ ucfirst(str_replace('_', ' ', $cita->tipo_cita)) }}</span>
+                                    <a href="{{ route('bienestar.citas.show', $cita->id_cita) }}" class="fw-semibold text-decoration-none text-dark">
+                                        {{ ucfirst(str_replace('_', ' ', $cita->tipo_cita)) }}
+                                    </a>
                                     <span class="badge bg-light text-dark border">{{ ucfirst($cita->estado) }}</span>
                                 </div>
                                 <p class="text-muted small mb-1">
                                     Especialista: {{ $cita->horario?->especialista?->nombres }} {{ $cita->horario?->especialista?->apellidos }}
                                 </p>
-                                <span class="text-muted small">Fecha: {{ $cita->horario?->fecha }} ({{ $cita->horario?->hora_inicio }} - {{ $cita->horario?->hora_fin }})</span>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted small">Fecha: {{ $cita->horario?->fecha?->format('d/m/Y') }} ({{ $cita->horario?->hora_inicio }} - {{ $cita->horario?->hora_fin }})</span>
+                                    <a href="{{ route('bienestar.citas.show', $cita->id_cita) }}" class="text-decoration-none small">
+                                        Ver detalle
+                                    </a>
+                                </div>
                             </li>
                         @empty
                             <li class="list-group-item text-center py-4 text-muted small">No tiene citas agendadas actualmente.</li>

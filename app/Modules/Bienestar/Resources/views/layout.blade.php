@@ -93,16 +93,43 @@
                                     Solicitudes
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.citas.*') && !request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.index') }}">
+                                    Citas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.horarios') }}">
+                                    Horarios
+                                </a>
+                            </li>
+                        @endif
+                        @if((Auth::user()->rol->nombre ?? '') === 'Especialista')
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.citas.*') && !request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.index') }}">
+                                    Citas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.citas.horarios*') ? 'active' : '' }}" href="{{ route('bienestar.citas.horarios') }}">
+                                    Mis horarios
+                                </a>
+                            </li>
                         @endif
                         @if((Auth::user()->rol->nombre ?? '') === 'Estudiante')
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.index') ? 'active' : '' }}" href="{{ route('bienestar.solicitudes.index') }}">
+                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.*') ? 'active' : '' }}" href="{{ route('bienestar.solicitudes.index') }}">
                                     Mis solicitudes
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.create') ? 'active' : '' }}" href="{{ route('bienestar.solicitudes.create') }}">
-                                    Nueva solicitud
+                                <a class="nav-link {{ request()->routeIs('bienestar.citas.index') || request()->routeIs('bienestar.citas.show') ? 'active' : '' }}" href="{{ route('bienestar.citas.index') }}">
+                                    Mis citas
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.citas.create') ? 'active' : '' }}" href="{{ route('bienestar.citas.create') }}">
+                                    Agendar cita
                                 </a>
                             </li>
                         @endif
