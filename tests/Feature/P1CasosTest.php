@@ -37,7 +37,7 @@ class P1CasosTest extends TestCase
         // 1. Cargar formulario de creación
         $responseCreate = $this->actingAs($this->personalBienestar)->get('/bienestar/casos/crear');
         $responseCreate->assertStatus(200);
-        $responseCreate->assertSee('Apertura de Expediente de Bienestar (P1)');
+        $responseCreate->assertSee('Nuevo caso');
 
         // 2. Enviar formulario con datos válidos
         $payload = [

@@ -3,27 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Bienestar Estudiantil') — UNT</title>
+    <title>@yield('title', 'Bienestar Universitario') — UNT</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        body { background-color: #f4f6f9; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-        .navbar-unt { background: linear-gradient(90deg, #0d47a1 0%, #1976d2 100%); }
-        .card-stat { border-left: 4px solid; transition: transform .15s; }
-        .card-stat:hover { transform: translateY(-3px); }
+        body {
+            background-color: #f8f9fa;
+            color: #212529;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 0.95rem;
+        }
+        .navbar-institutional {
+            background-color: #0c2340;
+            border-bottom: 3px solid #d4af37; /* Toque dorado institucional UNT */
+        }
+        .navbar-institutional .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+        }
+        .navbar-institutional .nav-link:hover,
+        .navbar-institutional .nav-link.active {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .card {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+        .card-header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+        }
+        .table > :not(caption) > * > * {
+            padding: 0.6rem 0.75rem;
+            border-bottom-color: #e9ecef;
+        }
+        .table thead th {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #495057;
+            text-transform: none;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .badge-status {
+            font-weight: 500;
+            font-size: 0.8rem;
+            padding: 0.3em 0.6em;
+            border-radius: 3px;
+        }
+        .btn {
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-h-screen">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-unt shadow-sm">
+    <!-- Barra superior institucional -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-institutional">
         <div class="container">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ route('bienestar.dashboard') }}">
-                <i class="bi bi-heart-pulse-fill text-danger me-2 fs-4"></i>
-                <span>Bienestar Universitario UNT</span>
+            <a class="navbar-brand text-white fw-semibold" href="{{ route('bienestar.dashboard') }}">
+                Universidad Nacional de Trujillo <span class="fw-normal text-white-50">| Bienestar</span>
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -31,31 +78,31 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     @auth
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('bienestar.dashboard') ? 'active fw-bold' : '' }}" href="{{ route('bienestar.dashboard') }}">
-                                <i class="bi bi-speedometer2 me-1"></i>Panel Principal
+                            <a class="nav-link {{ request()->routeIs('bienestar.dashboard') ? 'active' : '' }}" href="{{ route('bienestar.dashboard') }}">
+                                Panel principal
                             </a>
                         </li>
                         @if(in_array(Auth::user()->rol->nombre ?? '', ['Personal de Bienestar', 'Administrador']))
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('bienestar.casos.*') ? 'active fw-bold' : '' }}" href="{{ route('bienestar.casos.index') }}">
-                                    <i class="bi bi-folder2-open me-1"></i>Casos de Bienestar (P1)
+                                <a class="nav-link {{ request()->routeIs('bienestar.casos.*') ? 'active' : '' }}" href="{{ route('bienestar.casos.index') }}">
+                                    Casos
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.*') ? 'active fw-bold' : '' }}" href="{{ route('bienestar.solicitudes.index') }}">
-                                    <i class="bi bi-file-earmark-check me-1"></i>Solicitudes de Apoyo (P2)
+                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.*') ? 'active' : '' }}" href="{{ route('bienestar.solicitudes.index') }}">
+                                    Solicitudes
                                 </a>
                             </li>
                         @endif
                         @if((Auth::user()->rol->nombre ?? '') === 'Estudiante')
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.index') ? 'active fw-bold' : '' }}" href="{{ route('bienestar.solicitudes.index') }}">
-                                    <i class="bi bi-card-checklist me-1"></i>Mis Solicitudes (P2)
+                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.index') ? 'active' : '' }}" href="{{ route('bienestar.solicitudes.index') }}">
+                                    Mis solicitudes
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.create') ? 'active fw-bold' : '' }}" href="{{ route('bienestar.solicitudes.create') }}">
-                                    <i class="bi bi-plus-circle me-1"></i>Nueva Solicitud
+                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.create') ? 'active' : '' }}" href="{{ route('bienestar.solicitudes.create') }}">
+                                    Nueva solicitud
                                 </a>
                             </li>
                         @endif
@@ -64,35 +111,22 @@
 
                 <ul class="navbar-nav ms-auto align-items-center">
                     @auth
-                        @php
-                            $rolNombre = Auth::user()->rol->nombre ?? 'Usuario';
-                            $badgeColor = match($rolNombre) {
-                                'Administrador' => 'bg-dark',
-                                'Personal de Bienestar' => 'bg-primary',
-                                'Especialista' => 'bg-info text-dark',
-                                'Docente' => 'bg-warning text-dark',
-                                'Estudiante' => 'bg-success',
-                                default => 'bg-secondary'
-                            };
-                        @endphp
-                        <li class="nav-item me-3 text-white">
-                            <span class="small opacity-75 d-block text-end">{{ Auth::user()->correo }}</span>
-                            <div class="text-end">
-                                <span class="badge {{ $badgeColor }}">{{ $rolNombre }}</span>
-                            </div>
+                        <li class="nav-item me-3 text-white-50 small">
+                            <span class="text-white">{{ Auth::user()->correo }}</span>
+                            <span>({{ Auth::user()->rol->nombre ?? 'Usuario' }})</span>
                         </li>
                         <li class="nav-item">
                             <form action="{{ route('bienestar.logout') }}" method="POST" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-outline-light btn-sm">
-                                    <i class="bi bi-box-arrow-right me-1"></i>Salir
+                                <button type="submit" class="btn btn-outline-light btn-sm py-1 px-3">
+                                    Salir
                                 </button>
                             </form>
                         </li>
                     @else
                         <li class="nav-item">
-                            <a href="{{ route('bienestar.login') }}" class="btn btn-light btn-sm fw-semibold">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
+                            <a href="{{ route('bienestar.login') }}" class="btn btn-outline-light btn-sm py-1 px-3">
+                                Iniciar sesión
                             </a>
                         </li>
                     @endauth
@@ -101,34 +135,33 @@
         </div>
     </nav>
 
-    <!-- Contenido Principal -->
+    <!-- Contenido principal -->
     <main class="container my-4 flex-grow-1">
-        <!-- Alertas Flash -->
+        <!-- Mensajes del sistema -->
         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
         @if(session('warning'))
-            <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('warning') }}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ session('warning') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
         @if(session('info'))
-            <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
-                <i class="bi bi-info-circle-fill me-2"></i>{{ session('info') }}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ session('info') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
         @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-                <i class="bi bi-x-circle-fill me-2"></i>
-                <strong>Atención:</strong>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span class="fw-semibold">Por favor verifique los siguientes campos:</span>
                 <ul class="mb-0 mt-1">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -141,10 +174,10 @@
         @yield('content')
     </main>
 
-    <!-- Footer -->
+    <!-- Pie de página sobrio -->
     <footer class="bg-white border-top py-3 mt-auto">
         <div class="container text-center text-muted small">
-            <span>Universidad Nacional de Trujillo — Dirección de Escuela de Informática — Proyecto de Competencia (Grupo 11)</span>
+            Universidad Nacional de Trujillo — Dirección de Bienestar Universitario
         </div>
     </footer>
 

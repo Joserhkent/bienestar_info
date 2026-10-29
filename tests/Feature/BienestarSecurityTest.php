@@ -20,15 +20,15 @@ class BienestarSecurityTest extends TestCase
         $this->app['env'] = 'local';
         $responseLocal = $this->get('/bienestar/login');
         $responseLocal->assertStatus(200);
-        $responseLocal->assertSee('Acceso al Sistema');
-        $responseLocal->assertSee('Acceso Rápido para Demostración');
+        $responseLocal->assertSee('Acceso al sistema');
+        $responseLocal->assertSee('Acceso rápido para demostración');
 
         // En entorno producción: debe renderizar 200 y NO mostrar el bloque de acceso rápido
         config(['app.env' => 'production']);
         $this->app['env'] = 'production';
         $responseProd = $this->get('/bienestar/login');
         $responseProd->assertStatus(200);
-        $responseProd->assertDontSee('Acceso Rápido para Demostración');
+        $responseProd->assertDontSee('Acceso rápido para demostración');
     }
 
     /**
@@ -51,11 +51,11 @@ class BienestarSecurityTest extends TestCase
     public function test_all_five_roles_can_login_and_access_dashboard(): void
     {
         $roles = [
-            'admin@unitru.edu.pe' => 'TOTAL CASOS',
-            'bienestar@unitru.edu.pe' => 'TOTAL CASOS',
-            'psicologia@unitru.edu.pe' => 'CITAS SOLICITADAS',
-            'docente@unitru.edu.pe' => 'Acceso Pedagógico Regulado — Ley N° 30150',
-            'estudiante1@unitru.edu.pe' => 'Mis Solicitudes de Apoyo',
+            'admin@unitru.edu.pe' => 'Total de casos',
+            'bienestar@unitru.edu.pe' => 'Total de casos',
+            'psicologia@unitru.edu.pe' => 'Citas solicitadas',
+            'docente@unitru.edu.pe' => 'Pautas pedagógicas',
+            'estudiante1@unitru.edu.pe' => 'Mis solicitudes',
         ];
 
         foreach ($roles as $correo => $expectedText) {

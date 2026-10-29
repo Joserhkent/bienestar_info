@@ -1,76 +1,48 @@
 @extends('bienestar::layout')
 
-@section('title', 'Iniciar Sesión — Bienestar UNT')
+@section('title', 'Iniciar sesión — Bienestar UNT')
 
 @section('content')
-<div class="row justify-content-center py-4">
-    <div class="col-md-5">
-        <div class="card shadow-lg border-0 rounded-3">
-            <div class="card-header bg-white text-center py-4 border-0">
-                <i class="bi bi-shield-lock-fill text-primary display-4"></i>
-                <h4 class="fw-bold mt-2 text-dark">Acceso al Sistema</h4>
-                <p class="text-muted small mb-0">Gestión de Bienestar Estudiantil — UNT</p>
+<div class="row justify-content-center py-5">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-dark">Acceso al sistema</h5>
             </div>
-            <div class="card-body p-4 pt-0">
+            <div class="card-body p-4">
                 <form action="{{ route('bienestar.login.post') }}" method="POST">
                     @csrf
                     <div class="mb-3">
-                        <label for="correo" class="form-label fw-semibold">Correo Institucional:</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
-                            <input type="email" class="form-control @error('correo') is-invalid @enderror" 
-                                   id="correo" name="correo" value="{{ old('correo') }}" 
-                                   placeholder="usuario@unitru.edu.pe" required autofocus>
-                        </div>
+                        <label for="correo" class="form-label">Correo institucional</label>
+                        <input type="email" class="form-control @error('correo') is-invalid @enderror" 
+                               id="correo" name="correo" value="{{ old('correo') }}" 
+                               placeholder="usuario@unitru.edu.pe" required autofocus>
                     </div>
 
                     <div class="mb-4">
-                        <label for="password" class="form-label fw-semibold">Contraseña:</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                   id="password" name="password" placeholder="••••••••" required>
-                        </div>
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                               id="password" name="password" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al Portal
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        Ingresar
                     </button>
                 </form>
 
-                <hr class="my-4 text-muted">
-
-                <!-- Accesos Rápidos para la Exposición Oral (Solo en entorno local) -->
                 @if(app()->isLocal() || config('app.env') === 'local')
-                    <div class="bg-light p-3 rounded border">
-                        <span class="small fw-bold text-secondary d-block mb-2 text-center">
-                            <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Acceso Rápido para Demostración (Expo):
-                        </span>
-                        <div class="d-grid gap-2">
-                            <button type="button" class="btn btn-outline-dark btn-sm text-start" 
-                                    onclick="fillCreds('admin@unitru.edu.pe', 'password123')">
-                                <span class="badge bg-dark me-2">Admin</span> admin@unitru.edu.pe
-                            </button>
-                            <button type="button" class="btn btn-outline-primary btn-sm text-start" 
-                                    onclick="fillCreds('bienestar@unitru.edu.pe', 'password123')">
-                                <span class="badge bg-primary me-2">Bienestar</span> bienestar@unitru.edu.pe
-                            </button>
-                            <button type="button" class="btn btn-outline-info btn-sm text-start text-dark" 
-                                    onclick="fillCreds('psicologia@unitru.edu.pe', 'password123')">
-                                <span class="badge bg-info text-dark me-2">Especialista</span> psicologia@unitru.edu.pe
-                            </button>
-                            <button type="button" class="btn btn-outline-warning btn-sm text-start text-dark" 
-                                    onclick="fillCreds('docente@unitru.edu.pe', 'password123')">
-                                <span class="badge bg-warning text-dark me-2">Docente</span> docente@unitru.edu.pe
-                            </button>
-                            <button type="button" class="btn btn-outline-success btn-sm text-start" 
-                                    onclick="fillCreds('estudiante1@unitru.edu.pe', 'password123')">
-                                <span class="badge bg-success me-2">Estudiante</span> estudiante1@unitru.edu.pe
-                            </button>
-                        </div>
+                    <div class="mt-4 pt-3 border-top">
+                        <label for="selector_demo" class="form-label text-muted small">Acceso rápido para demostración:</label>
+                        <select id="selector_demo" class="form-select form-select-sm text-secondary" onchange="completarCredenciales(this.value, 'password123')">
+                            <option value="">Seleccione una cuenta de prueba...</option>
+                            <option value="admin@unitru.edu.pe">Administrador (admin@unitru.edu.pe)</option>
+                            <option value="bienestar@unitru.edu.pe">Personal de Bienestar (bienestar@unitru.edu.pe)</option>
+                            <option value="psicologia@unitru.edu.pe">Especialista (psicologia@unitru.edu.pe)</option>
+                            <option value="docente@unitru.edu.pe">Docente (docente@unitru.edu.pe)</option>
+                            <option value="estudiante1@unitru.edu.pe">Estudiante (estudiante1@unitru.edu.pe)</option>
+                        </select>
                     </div>
                 @endif
-
             </div>
         </div>
     </div>
@@ -78,9 +50,11 @@
 
 @push('scripts')
 <script>
-function fillCreds(correo, pass) {
-    document.getElementById('correo').value = correo;
-    document.getElementById('password').value = pass;
+function completarCredenciales(correo, clave) {
+    if (correo) {
+        document.getElementById('correo').value = correo;
+        document.getElementById('password').value = clave;
+    }
 }
 </script>
 @endpush
