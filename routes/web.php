@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Redirigir la raíz del proyecto directamente a nuestro módulo de Bienestar
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('bienestar.home');
 });

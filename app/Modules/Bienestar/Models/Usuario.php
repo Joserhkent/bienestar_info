@@ -35,9 +35,24 @@ class Usuario extends Authenticatable
         ];
     }
 
+    public function getAuthIdentifierName(): string
+    {
+        return 'id_usuario';
+    }
+
+    public function getAuthPasswordName(): string
+    {
+        return 'contrasena_hash';
+    }
+
     public function getAuthPassword(): string
     {
         return $this->contrasena_hash;
+    }
+
+    public function getRememberTokenName(): string
+    {
+        return '';
     }
 
     /**

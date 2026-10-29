@@ -2,7 +2,20 @@
 
 namespace App\Modules\Bienestar\Providers;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use App\Modules\Bienestar\Models\CasoBienestar;
+use App\Modules\Bienestar\Models\Cita;
+use App\Modules\Bienestar\Models\Derivacion;
+use App\Modules\Bienestar\Models\EstudianteTipoCondicion;
+use App\Modules\Bienestar\Models\Reporte;
+use App\Modules\Bienestar\Models\SolicitudApoyo;
+use App\Modules\Bienestar\Policies\CasoBienestarPolicy;
+use App\Modules\Bienestar\Policies\CitaPolicy;
+use App\Modules\Bienestar\Policies\DerivacionPolicy;
+use App\Modules\Bienestar\Policies\DocentePautaPolicy;
+use App\Modules\Bienestar\Policies\ReportePolicy;
+use App\Modules\Bienestar\Policies\SolicitudApoyoPolicy;
 
 class BienestarServiceProvider extends ServiceProvider
 {
@@ -25,7 +38,15 @@ class BienestarServiceProvider extends ServiceProvider
         // 2. Cargar rutas web con prefijo y middlewares
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
 
-        // 3. Cargar vistas Blade con namespace 'bienestar' (ej. view('bienestar::dashboard'))
+        // 3. Cargar vistas Blade con namespace 'bienestar'
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'bienestar');
+
+        // 4. Registrar Policies de autorización por proceso (P1 a P5)
+        Gate::policy(CasoBienestar::class, CasoBienestarPolicy::class);
+        Gate::policy(SolicitudApoyo::class, SolicitudApoyoPolicy::class);
+        Gate::policy(Cita::class, CitaPolicy::class);
+        Gate::policy(Derivacion::class, DerivacionPolicy::class);
+        Gate::policy(EstudianteTipoCondicion::class, DocentePautaPolicy::class);
+        Gate::policy(Reporte::class, ReportePolicy::class);
     }
 }
