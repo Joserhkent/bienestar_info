@@ -101,12 +101,14 @@
                     <tbody>
                         @forelse($casos['por_estado'] as $estado => $cant)
                             @php
+                                $cantTexto = ($cant > 0 && $cant < 5) ? 'menos de 5' : $cant;
                                 $pct = $casos['total'] > 0 ? round(($cant / $casos['total']) * 100, 1) : 0;
+                                $pctTexto = ($cant > 0 && $cant < 5) ? '< 5%' : $pct . '%';
                             @endphp
                             <tr>
                                 <td class="text-dark">{{ ucfirst(str_replace('_', ' ', $estado)) }}</td>
-                                <td class="text-end fw-semibold">{{ $cant }}</td>
-                                <td class="text-end pe-3 text-muted">{{ $pct }}%</td>
+                                <td class="text-end fw-semibold">{{ $cantTexto }}</td>
+                                <td class="text-end pe-3 text-muted">{{ $pctTexto }}</td>
                             </tr>
                         @empty
                             <tr>
@@ -137,12 +139,14 @@
                     <tbody>
                         @forelse($casos['por_tipo'] as $tipo => $cant)
                             @php
+                                $cantTexto = ($cant > 0 && $cant < 5) ? 'menos de 5' : $cant;
                                 $pct = $casos['total'] > 0 ? round(($cant / $casos['total']) * 100, 1) : 0;
+                                $pctTexto = ($cant > 0 && $cant < 5) ? '< 5%' : $pct . '%';
                             @endphp
                             <tr>
                                 <td class="text-dark">{{ $tipo }}</td>
-                                <td class="text-end fw-semibold">{{ $cant }}</td>
-                                <td class="text-end pe-3 text-muted">{{ $pct }}%</td>
+                                <td class="text-end fw-semibold">{{ $cantTexto }}</td>
+                                <td class="text-end pe-3 text-muted">{{ $pctTexto }}</td>
                             </tr>
                         @empty
                             <tr>
@@ -175,12 +179,14 @@
                     <tbody>
                         @forelse($solicitudes['por_estado'] as $estado => $cant)
                             @php
+                                $cantTexto = ($cant > 0 && $cant < 5) ? 'menos de 5' : $cant;
                                 $pct = $solicitudes['total'] > 0 ? round(($cant / $solicitudes['total']) * 100, 1) : 0;
+                                $pctTexto = ($cant > 0 && $cant < 5) ? '< 5%' : $pct . '%';
                             @endphp
                             <tr>
                                 <td class="text-dark">{{ ucfirst(str_replace('_', ' ', $estado)) }}</td>
-                                <td class="text-end fw-semibold">{{ $cant }}</td>
-                                <td class="text-end pe-3 text-muted">{{ $pct }}%</td>
+                                <td class="text-end fw-semibold">{{ $cantTexto }}</td>
+                                <td class="text-end pe-3 text-muted">{{ $pctTexto }}</td>
                             </tr>
                         @empty
                             <tr>
@@ -211,12 +217,14 @@
                     <tbody>
                         @forelse($citas['por_estado'] as $estado => $cant)
                             @php
+                                $cantTexto = ($cant > 0 && $cant < 5) ? 'menos de 5' : $cant;
                                 $pct = $citas['total'] > 0 ? round(($cant / $citas['total']) * 100, 1) : 0;
+                                $pctTexto = ($cant > 0 && $cant < 5) ? '< 5%' : $pct . '%';
                             @endphp
                             <tr>
                                 <td class="text-dark">{{ ucfirst(str_replace('_', ' ', $estado)) }}</td>
-                                <td class="text-end fw-semibold">{{ $cant }}</td>
-                                <td class="text-end pe-3 text-muted">{{ $pct }}%</td>
+                                <td class="text-end fw-semibold">{{ $cantTexto }}</td>
+                                <td class="text-end pe-3 text-muted">{{ $pctTexto }}</td>
                             </tr>
                         @empty
                             <tr>

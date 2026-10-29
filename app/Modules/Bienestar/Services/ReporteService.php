@@ -154,31 +154,70 @@ class ReporteService
             // 1. Casos por Estado
             $totalCasos = $data['casos']['total'];
             foreach ($data['casos']['por_estado'] as $estado => $cant) {
-                $pct = $totalCasos > 0 ? round(($cant / $totalCasos) * 100, 1) . '%' : '0%';
-                fputcsv($handle, ['Casos', 'Estado', ucfirst(str_replace('_', ' ', $estado)), $cant, $pct]);
+                fputcsv($handle, [
+                    'Casos',
+                    'Estado',
+                    ucfirst(str_replace('_', ' ', $estado)),
+                    self::formatearCantidad((int) $cant),
+                    self::formatearPorcentaje((int) $cant, (int) $totalCasos),
+                ]);
             }
 
             // 2. Casos por Tipo
             foreach ($data['casos']['por_tipo'] as $tipo => $cant) {
-                $pct = $totalCasos > 0 ? round(($cant / $totalCasos) * 100, 1) . '%' : '0%';
-                fputcsv($handle, ['Casos', 'Tipo de Caso', $tipo, $cant, $pct]);
+                fputcsv($handle, [
+                    'Casos',
+                    'Tipo de Caso',
+                    $tipo,
+                    self::formatearCantidad((int) $cant),
+                    self::formatearPorcentaje((int) $cant, (int) $totalCasos),
+                ]);
             }
 
             // 3. Solicitudes por Estado
             $totalSol = $data['solicitudes']['total'];
             foreach ($data['solicitudes']['por_estado'] as $estado => $cant) {
-                $pct = $totalSol > 0 ? round(($cant / $totalSol) * 100, 1) . '%' : '0%';
-                fputcsv($handle, ['Solicitudes de Apoyo', 'Estado', ucfirst(str_replace('_', ' ', $estado)), $cant, $pct]);
+                fputcsv($handle, [
+                    'Solicitudes de Apoyo',
+                    'Estado',
+                    ucfirst(str_replace('_', ' ', $estado)),
+                    self::formatearCantidad((int) $cant),
+                    self::formatearPorcentaje((int) $cant, (int) $totalSol),
+                ]);
             }
 
             // 4. Citas por Estado
             $totalCitas = $data['citas']['total'];
             foreach ($data['citas']['por_estado'] as $estado => $cant) {
-                $pct = $totalCitas > 0 ? round(($cant / $totalCitas) * 100, 1) . '%' : '0%';
-                fputcsv($handle, ['Citas de Atencion', 'Estado', ucfirst(str_replace('_', ' ', $estado)), $cant, $pct]);
+                fputcsv($handle, [
+                    'Citas de Atencion',
+                    'Estado',
+                    ucfirst(str_replace('_', ' ', $estado)),
+                    self::formatearCantidad((int) $cant),
+                    self::formatearPorcentaje((int) $cant, (int) $totalCitas),
+                ]);
             }
 
             fclose($handle);
         }, 200, $headers);
+    }
+
+    /**
+     * Ofuscación de k-anonimato: Muestra 'menos de 5' cuando una categoría tiene pocos casos.
+     */
+    public static function formatearCantidad(int $cant): string
+    {
+        if ($cant > 0 && $cant < 5) {
+            return 'menos de 5';
+        }
+        return (string) $cant;
+    }
+
+    public static function formatearPorcentaje(int $cant, int $total): string
+    {
+        if ($cant > 0 && $cant < 5) {
+            return '< 5%';
+        }
+        return $total > 0 ? round(($cant / $total) * 100, 1) . '%' : '0%';
     }
 }

@@ -344,13 +344,13 @@ class BienestarDatabaseSeeder extends Seeder
             'fecha_confirmacion' => '2026-10-25 10:15:00',
         ]);
 
-        // 13. Notificaciones (P5)
+        // 13. Notificaciones (P5: texto genérico institucional)
         DB::table('bienestar.notificacion')->updateOrInsert(['id_notificacion' => 1], [
             'id_notificacion' => 1,
             'id_usuario' => 6, // Estudiante 1
             'id_caso' => 1,
-            'titulo' => 'Solicitud de Comedor Aprobada',
-            'mensaje' => 'Estimado(a) estudiante, su solicitud de Comedor Universitario ha sido APROBADA satisfactoriamente.',
+            'titulo' => 'Actualización en tu solicitud',
+            'mensaje' => 'Tienes una actualización en tu solicitud: ha sido aprobada.',
             'canal' => 'sistema',
             'fecha_envio' => '2026-10-23 12:05:00',
             'leida' => true,

@@ -71,13 +71,13 @@ class SolicitudApoyoService
                 ]);
             }
 
-            // Notificación al estudiante (P5: confirmación de recepción)
+            // Notificación al estudiante (P5: confirmación de recepción genérica)
             if ($estudiante && $estudiante->id_usuario) {
                 Notificacion::create([
                     'id_usuario' => $estudiante->id_usuario,
                     'id_caso' => null,
-                    'titulo' => 'Solicitud registrada',
-                    'mensaje' => 'Su solicitud de apoyo ha sido registrada y se encuentra en proceso de revisión.',
+                    'titulo' => 'Actualización en tu solicitud',
+                    'mensaje' => 'Tienes una actualización en tu solicitud: ha sido registrada y se encuentra en proceso de revisión.',
                     'canal' => 'sistema',
                     'fecha_envio' => now(),
                     'leida' => false,
@@ -112,23 +112,18 @@ class SolicitudApoyoService
             $solicitud->fecha_resolucion = now();
             $solicitud->save();
 
-            // 2. Notificar al estudiante sobre la resolución emitida
+            // 2. Notificar al estudiante sobre la resolución emitida (P5: texto genérico sin tipo de apoyo)
             $estudiante = $solicitud->estudiante;
             if ($estudiante && $estudiante->id_usuario) {
-                $estadoTexto = strtoupper($estado);
-                $tipoApoyoLegible = str_replace('_', ' ', $solicitud->tipo_apoyo);
-                
-                $titulo = "Resolución de Solicitud de Apoyo: {$estadoTexto}";
-                $mensaje = "Su solicitud para '{$tipoApoyoLegible}' ha sido {$estadoTexto} por la Dirección de Bienestar Universitario.";
-                
+                $mensaje = "Tienes una actualización en tu solicitud: ha sido {$estado}.";
                 if (!empty($observacion)) {
-                    $mensaje .= "\nObservaciones / Sustento del dictamen: {$observacion}";
+                    $mensaje .= " Observaciones: {$observacion}";
                 }
 
                 Notificacion::create([
                     'id_usuario' => $estudiante->id_usuario,
                     'id_caso' => null,
-                    'titulo' => $titulo,
+                    'titulo' => 'Actualización en tu solicitud',
                     'mensaje' => $mensaje,
                     'canal' => 'sistema',
                     'fecha_envio' => now(),

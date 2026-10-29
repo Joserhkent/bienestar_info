@@ -90,9 +90,11 @@
                                 <span class="fw-medium text-dark d-block">{{ $doc->nombre_archivo }}</span>
                                 <span class="text-muted small">{{ $doc->tipo_documento }} &bull; {{ $doc->tamano_kb }} KB</span>
                             </div>
-                            <a href="{{ route('bienestar.solicitudes.documentos.descargar', $doc->id_documento) }}" class="btn btn-outline-secondary btn-sm">
-                                Descargar
-                            </a>
+                            @can('download', $doc)
+                                <a href="{{ route('bienestar.solicitudes.documentos.descargar', $doc->id_documento) }}" class="btn btn-outline-secondary btn-sm">
+                                    Descargar
+                                </a>
+                            @endcan
                         </div>
                     @empty
                         <div class="p-3 text-center text-muted small">No se registran documentos adjuntos.</div>

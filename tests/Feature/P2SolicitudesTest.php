@@ -138,7 +138,8 @@ class P2SolicitudesTest extends TestCase
             ->latest('id_notificacion')
             ->firstOrFail();
 
-        $this->assertStringContainsString('APROBADA', $notificacion->titulo);
+        $this->assertStringContainsString('Actualización en tu solicitud', $notificacion->titulo);
+        $this->assertStringContainsString('aprobada', $notificacion->mensaje);
         $this->assertStringContainsString('Evaluación socioeconómica favorable', $notificacion->mensaje);
     }
 
