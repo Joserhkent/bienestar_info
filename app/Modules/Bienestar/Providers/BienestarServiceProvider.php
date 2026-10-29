@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Modules\Bienestar\Models\CasoBienestar;
 use App\Modules\Bienestar\Models\Cita;
 use App\Modules\Bienestar\Models\Derivacion;
+use App\Modules\Bienestar\Models\DocumentoAdjunto;
 use App\Modules\Bienestar\Models\EstudianteTipoCondicion;
 use App\Modules\Bienestar\Models\Reporte;
 use App\Modules\Bienestar\Models\SolicitudApoyo;
@@ -14,6 +15,7 @@ use App\Modules\Bienestar\Policies\CasoBienestarPolicy;
 use App\Modules\Bienestar\Policies\CitaPolicy;
 use App\Modules\Bienestar\Policies\DerivacionPolicy;
 use App\Modules\Bienestar\Policies\DocentePautaPolicy;
+use App\Modules\Bienestar\Policies\DocumentoAdjuntoPolicy;
 use App\Modules\Bienestar\Policies\ReportePolicy;
 use App\Modules\Bienestar\Policies\SolicitudApoyoPolicy;
 
@@ -44,6 +46,7 @@ class BienestarServiceProvider extends ServiceProvider
         // 4. Registrar Policies de autorización por proceso (P1 a P5)
         Gate::policy(CasoBienestar::class, CasoBienestarPolicy::class);
         Gate::policy(SolicitudApoyo::class, SolicitudApoyoPolicy::class);
+        Gate::policy(DocumentoAdjunto::class, DocumentoAdjuntoPolicy::class);
         Gate::policy(Cita::class, CitaPolicy::class);
         Gate::policy(Derivacion::class, DerivacionPolicy::class);
         Gate::policy(EstudianteTipoCondicion::class, DocentePautaPolicy::class);

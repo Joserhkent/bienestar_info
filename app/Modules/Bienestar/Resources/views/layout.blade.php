@@ -41,6 +41,23 @@
                                     <i class="bi bi-folder2-open me-1"></i>Casos de Bienestar (P1)
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.*') ? 'active fw-bold' : '' }}" href="{{ route('bienestar.solicitudes.index') }}">
+                                    <i class="bi bi-file-earmark-check me-1"></i>Solicitudes de Apoyo (P2)
+                                </a>
+                            </li>
+                        @endif
+                        @if((Auth::user()->rol->nombre ?? '') === 'Estudiante')
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.index') ? 'active fw-bold' : '' }}" href="{{ route('bienestar.solicitudes.index') }}">
+                                    <i class="bi bi-card-checklist me-1"></i>Mis Solicitudes (P2)
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('bienestar.solicitudes.create') ? 'active fw-bold' : '' }}" href="{{ route('bienestar.solicitudes.create') }}">
+                                    <i class="bi bi-plus-circle me-1"></i>Nueva Solicitud
+                                </a>
+                            </li>
                         @endif
                     @endauth
                 </ul>

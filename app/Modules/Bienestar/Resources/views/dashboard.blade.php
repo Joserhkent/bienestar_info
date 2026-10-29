@@ -39,13 +39,15 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card card-stat shadow-sm border-0 border-info h-100">
-                <div class="card-body">
-                    <span class="text-muted small fw-bold">SOLICITUDES APOYO (P2)</span>
-                    <h3 class="fw-bold my-2 text-info">{{ $solicitudesPendientes }}</h3>
-                    <span class="small text-muted"><i class="bi bi-file-earmark-text me-1"></i>Por dictaminar</span>
+            <a href="{{ route('bienestar.solicitudes.index') }}" class="text-decoration-none">
+                <div class="card card-stat shadow-sm border-0 border-info h-100">
+                    <div class="card-body">
+                        <span class="text-muted small fw-bold">SOLICITUDES APOYO (P2)</span>
+                        <h3 class="fw-bold my-2 text-info">{{ $solicitudesPendientes }}</h3>
+                        <span class="small text-muted"><i class="bi bi-file-earmark-text me-1"></i>Por dictaminar &rarr;</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-3">
             <div class="card card-stat shadow-sm border-0 border-success h-100">
@@ -190,14 +192,23 @@
                     <h5 class="fw-bold mb-0 text-dark">
                         <i class="bi bi-card-checklist text-success me-2"></i>Mis Solicitudes de Apoyo (P2)
                     </h5>
-                    <span class="badge bg-success">{{ $misSolicitudes->count() }} Solicitud(es)</span>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('bienestar.solicitudes.create') }}" class="btn btn-outline-success btn-sm fw-semibold">
+                            <i class="bi bi-plus-circle me-1"></i>Nueva
+                        </a>
+                        <a href="{{ route('bienestar.solicitudes.index') }}" class="btn btn-light btn-sm border">
+                            Ver todas
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @forelse($misSolicitudes as $sol)
                             <li class="list-group-item p-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-bold text-dark">{{ ucwords(str_replace('_', ' ', $sol->tipo_apoyo)) }}</span>
+                                    <a href="{{ route('bienestar.solicitudes.show', $sol->id_solicitud) }}" class="fw-bold text-decoration-none text-primary">
+                                        {{ ucwords(str_replace('_', ' ', $sol->tipo_apoyo)) }}
+                                    </a>
                                     @php
                                         $solBadge = match($sol->estado) {
                                             'aprobada' => 'bg-success',
@@ -209,7 +220,12 @@
                                     <span class="badge {{ $solBadge }}">{{ strtoupper($sol->estado) }}</span>
                                 </div>
                                 <p class="text-muted small mb-1">{{ Str::limit($sol->motivo, 100) }}</p>
-                                <span class="small text-muted"><i class="bi bi-calendar3 me-1"></i>Enviado: {{ $sol->fecha_envio->format('d/m/Y') }}</span>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small text-muted"><i class="bi bi-calendar3 me-1"></i>Enviado: {{ $sol->fecha_envio->format('d/m/Y') }}</span>
+                                    <a href="{{ route('bienestar.solicitudes.show', $sol->id_solicitud) }}" class="small fw-semibold text-primary">
+                                        Ver detalle &rarr;
+                                    </a>
+                                </div>
                             </li>
                         @empty
                             <li class="list-group-item text-center py-4 text-muted">No tienes solicitudes enviadas.</li>

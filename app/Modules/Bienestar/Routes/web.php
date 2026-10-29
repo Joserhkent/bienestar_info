@@ -2,6 +2,7 @@
 
 use App\Modules\Bienestar\Http\Controllers\AuthController;
 use App\Modules\Bienestar\Http\Controllers\CasoBienestarController;
+use App\Modules\Bienestar\Http\Controllers\SolicitudApoyoController;
 use Illuminate\Support\Facades\Route;
 
 // El grupo 'web' es obligatorio para inicializar sesiones, cookies y ShareErrorsFromSession ($errors)
@@ -27,13 +28,21 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
         // Ver detalle de caso (protegido por CasoBienestarPolicy::view)
         Route::get('/casos/{caso}', [CasoBienestarController::class, 'show'])->name('casos.show');
 
-        // Módulos de los siguientes procesos (P2 a P5)
+        // PROCESO P2: Solicitud de Apoyo Socioeconómico
         Route::middleware('role:Personal de Bienestar,Administrador')->group(function () {
-            Route::get('/solicitudes/revision', fn() => redirect()->route('bienestar.dashboard'))->name('solicitudes.revision');
+            Route::get('/solicitudes/revision', fn() => redirect()->route('bienestar.solicitudes.index'))->name('solicitudes.revision');
         });
 
+        Route::get('/solicitudes', [SolicitudApoyoController::class, 'index'])->name('solicitudes.index');
+        Route::get('/solicitudes/crear', [SolicitudApoyoController::class, 'create'])->name('solicitudes.create');
+        Route::post('/solicitudes', [SolicitudApoyoController::class, 'store'])->name('solicitudes.store');
+        Route::get('/solicitudes/{solicitud}', [SolicitudApoyoController::class, 'show'])->whereNumber('solicitud')->name('solicitudes.show');
+        Route::post('/solicitudes/{solicitud}/dictaminar', [SolicitudApoyoController::class, 'dictaminar'])->whereNumber('solicitud')->name('solicitudes.dictaminar');
+        Route::get('/solicitudes/documentos/{documento}/descargar', [SolicitudApoyoController::class, 'descargarDocumento'])->whereNumber('documento')->name('solicitudes.documentos.descargar');
+
+        // Aliases para el menú del dashboard
+        Route::get('/mis-solicitudes', fn() => redirect()->route('bienestar.solicitudes.index'))->name('estudiante.solicitudes');
         Route::middleware('role:Estudiante')->group(function () {
-            Route::get('/mis-solicitudes', fn() => redirect()->route('bienestar.dashboard'))->name('estudiante.solicitudes');
             Route::get('/mis-citas', fn() => redirect()->route('bienestar.dashboard'))->name('estudiante.citas');
         });
 
