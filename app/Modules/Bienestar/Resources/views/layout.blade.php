@@ -50,6 +50,17 @@
             background-color: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
         }
+        .btn-toggle-password {
+            border-color: #ced4da;
+            color: #6c757d;
+            background-color: #fff;
+        }
+        .btn-toggle-password:hover,
+        .btn-toggle-password:focus {
+            border-color: #adb5bd;
+            color: #212529;
+            background-color: #f1f3f5;
+        }
         .badge-status {
             font-weight: 500;
             font-size: 0.8rem;
@@ -239,6 +250,28 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-toggle-password]');
+            if (!btn) return;
+            const targetId = btn.getAttribute('data-toggle-password');
+            const input = document.getElementById(targetId);
+            if (!input) return;
+
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            const eyeOpen = btn.querySelector('.eye-open');
+            const eyeClosed = btn.querySelector('.eye-closed');
+            if (eyeOpen && eyeClosed) {
+                eyeOpen.classList.toggle('d-none', isPassword);
+                eyeClosed.classList.toggle('d-none', !isPassword);
+            }
+
+            btn.setAttribute('aria-label', isPassword ? 'Ocultar contraseña' : 'Ver contraseña');
+            btn.setAttribute('title', isPassword ? 'Ocultar contraseña' : 'Ver contraseña');
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>
