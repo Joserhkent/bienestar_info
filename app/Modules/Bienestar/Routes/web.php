@@ -24,6 +24,9 @@ Route::middleware('web')->prefix('bienestar')->name('bienestar.')->group(functio
         // PROCESO P1: Registro y Gestión de Casos
         Route::middleware('role:Personal de Bienestar,Administrador')->group(function () {
             Route::get('/casos', [CasoBienestarController::class, 'index'])->name('casos.index');
+        });
+
+        Route::middleware('role:Personal de Bienestar')->group(function () {
             Route::get('/casos/crear', [CasoBienestarController::class, 'create'])->name('casos.create');
             Route::post('/casos', [CasoBienestarController::class, 'store'])->name('casos.store');
             Route::post('/casos/{caso}/cambiar-estado', [CasoBienestarController::class, 'cambiarEstado'])->name('casos.cambiar-estado');

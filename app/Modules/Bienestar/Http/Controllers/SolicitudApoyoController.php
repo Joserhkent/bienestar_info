@@ -72,6 +72,8 @@ class SolicitudApoyoController extends Controller
      */
     public function store(StoreSolicitudApoyoRequest $request)
     {
+        $this->authorize('create', SolicitudApoyo::class);
+
         $usuario = $request->user();
         $estudiante = $usuario->estudiante;
 
@@ -112,6 +114,8 @@ class SolicitudApoyoController extends Controller
      */
     public function dictaminar(DictaminarSolicitudRequest $request, SolicitudApoyo $solicitud)
     {
+        $this->authorize('dictaminar', $solicitud);
+
         $this->solicitudService->dictaminar(
             $solicitud,
             $request->validated('estado'),

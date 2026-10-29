@@ -12,11 +12,13 @@ else
     sudo docker compose exec -T app php artisan migrate:fresh --seed
 fi
 
-echo -e "\n[2/3] Verificando enlace simbólico de almacenamiento privado..."
+echo -e "\n[2/3] Verificando enlace simbólico y permisos de almacenamiento..."
 if command -v docker &> /dev/null && docker compose ps &> /dev/null; then
     docker compose exec -T app php artisan storage:link || true
+    docker compose exec -T app chmod -R 777 storage bootstrap/cache || true
 else
     sudo docker compose exec -T app php artisan storage:link || true
+    sudo docker compose exec -T app chmod -R 777 storage bootstrap/cache || true
 fi
 
 echo -e "\n[3/3] Base de datos restablecida con éxito."

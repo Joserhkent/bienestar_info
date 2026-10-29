@@ -22,8 +22,11 @@
 - [ ] **Carga exclusiva del seeder de producción**:
   Ejecutar el seeder institucional limpio (solo catálogos y cuenta inicial de Administrador; sin datos simulados de estudiantes, casos ni citas):
   ```bash
-  php artisan db:seed --class="App\Modules\Bienestar\Database\Seeders\BienestarProduccionSeeder" --force
+  INITIAL_ADMIN_PASSWORD="TuContraseñaSegura123!" php artisan db:seed --class="App\Modules\Bienestar\Database\Seeders\BienestarProduccionSeeder" --force
   ```
+  > [!IMPORTANT]
+  > **Orden de ejecución crítico**: `BienestarProduccionSeeder` DEBE ejecutarse **ANTES** de ejecutar `php artisan config:cache`. En Laravel, una vez que la configuración se cachea, las llamadas directas a `env()` devuelven `null`, lo que impediría leer `INITIAL_ADMIN_PASSWORD`.
+
 - [ ] **Cambio inmediato de credencial administrativa**:
   Ingresar con el usuario administrador inicial y actualizar la contraseña por una de alta entropía.
 - [ ] **Política de copias de seguridad (Backups)**:

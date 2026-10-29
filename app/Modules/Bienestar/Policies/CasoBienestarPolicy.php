@@ -10,34 +10,27 @@ class CasoBienestarPolicy
 {
     use HandlesAuthorization;
 
-    public function before(Usuario $user, string $ability): ?bool
-    {
-        if ($user->rol && $user->rol->nombre === 'Administrador') {
-            return true;
-        }
-        return null;
-    }
-
     /**
-     * Ver listado de casos: Solo Personal de Bienestar y Administrador
+     * Ver listado de casos: Personal de Bienestar y Administrador (Supervisión institucional)
      */
     public function viewAny(Usuario $user): bool
     {
-        return $user->rol && in_array($user->rol->nombre, ['Personal de Bienestar'], true);
+        $rol = $user->rol ? $user->rol->nombre : '';
+        return in_array($rol, ['Personal de Bienestar', 'Administrador'], true);
     }
 
     /**
      * Ver detalle de un caso:
-     * - Personal de Bienestar: Sí
+     * - Administrador y Personal de Bienestar: Sí (Supervisión)
      * - Especialista: Solo si el caso le fue derivado
      * - Estudiante: Solo su propio caso y SIEMPRE que NO sea confidencial
-     * - Docente: NUNCA (Estatuto UNT y confidencialidad médica)
+     * - Docente: NUNCA
      */
     public function view(Usuario $user, CasoBienestar $caso): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
 
-        if ($rol === 'Personal de Bienestar') {
+        if ($rol === 'Administrador' || $rol === 'Personal de Bienestar') {
             return true;
         }
 
@@ -55,7 +48,7 @@ class CasoBienestarPolicy
     }
 
     /**
-     * Registrar nuevo caso (P1): Personal de Bienestar
+     * Registrar nuevo caso (P1): Exclusivo de Personal de Bienestar
      */
     public function create(Usuario $user): bool
     {

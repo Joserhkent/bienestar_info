@@ -34,7 +34,7 @@
                     <div class="mt-4 pt-3 border-top">
                         <label for="selector_demo" class="form-label text-muted small">Acceso rápido para demostración:</label>
                         <select id="selector_demo" class="form-select form-select-sm text-secondary" onchange="completarCredenciales(this.value, 'password123')">
-                            <option value="">Seleccione una cuenta de prueba...</option>
+                            <option value="">Seleccione una cuenta institucional...</option>
                             <option value="admin@unitru.edu.pe">Administrador (admin@unitru.edu.pe)</option>
                             <option value="bienestar@unitru.edu.pe">Personal de Bienestar (bienestar@unitru.edu.pe)</option>
                             <option value="psicologia@unitru.edu.pe">Especialista (psicologia@unitru.edu.pe)</option>

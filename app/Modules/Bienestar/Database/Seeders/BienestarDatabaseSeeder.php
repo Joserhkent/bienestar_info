@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class BienestarDatabaseSeeder extends Seeder
 {
@@ -322,13 +323,18 @@ class BienestarDatabaseSeeder extends Seeder
             'observacion' => 'Aprobado según Ficha SISFOH Pobreza Extrema y visita domiciliaria.',
         ]);
 
+        $pdfContent = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n4 0 obj\n<< /Length 77 >>\nstream\nBT\n/F1 18 Tf\n100 700 Td\n(Documento Sustentatorio de Ejemplo - Bienestar UNT) Tj\nET\nendstream\nendobj\n5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000244 00000 n \n0000000370 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n447\n%%EOF\n";
+
+        Storage::disk('private')->put('documentos/solicitudes/1/sisfoh_clasificacion_72345671.pdf', $pdfContent);
+        Storage::disk('local')->put('documentos/solicitudes/1/sisfoh_clasificacion_72345671.pdf', $pdfContent);
+
         DB::table('bienestar.documento_adjunto')->updateOrInsert(['id_documento' => 1], [
             'id_documento' => 1,
             'id_solicitud' => 1,
             'tipo_documento' => 'Constancia SISFOH',
             'nombre_archivo' => 'sisfoh_clasificacion_72345671.pdf',
             'ruta_archivo' => 'documentos/solicitudes/1/sisfoh_clasificacion_72345671.pdf',
-            'tamano_kb' => 380,
+            'tamano_kb' => (int) max(1, ceil(strlen($pdfContent) / 1024)),
         ]);
 
         // 12. Cita (P3)

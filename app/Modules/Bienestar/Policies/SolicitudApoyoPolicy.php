@@ -10,24 +10,17 @@ class SolicitudApoyoPolicy
 {
     use HandlesAuthorization;
 
-    public function before(Usuario $user, string $ability): ?bool
-    {
-        if ($user->rol && $user->rol->nombre === 'Administrador') {
-            return true;
-        }
-        return null;
-    }
-
     public function viewAny(Usuario $user): bool
     {
-        return $user->rol && in_array($user->rol->nombre, ['Estudiante', 'Personal de Bienestar'], true);
+        $rol = $user->rol ? $user->rol->nombre : '';
+        return in_array($rol, ['Estudiante', 'Personal de Bienestar', 'Administrador'], true);
     }
 
     public function view(Usuario $user, SolicitudApoyo $solicitud): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
 
-        if ($rol === 'Personal de Bienestar') {
+        if ($rol === 'Administrador' || $rol === 'Personal de Bienestar') {
             return true;
         }
 

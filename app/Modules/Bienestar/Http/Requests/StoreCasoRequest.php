@@ -14,7 +14,7 @@ class StoreCasoRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // La autorización se delega a la Policy en el controlador
+        return $this->user() && $this->user()->can('create', \App\Modules\Bienestar\Models\CasoBienestar::class);
     }
 
     /**

@@ -10,26 +10,18 @@ class CitaPolicy
 {
     use HandlesAuthorization;
 
-    public function before(Usuario $user, string $ability): ?bool
-    {
-        if ($user->rol && $user->rol->nombre === 'Administrador') {
-            return true;
-        }
-        return null;
-    }
-
     public function viewAny(Usuario $user): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
         // Docente no tiene acceso a citas clínicas ni de tutoría individual
-        return in_array($rol, ['Personal de Bienestar', 'Especialista', 'Estudiante'], true);
+        return in_array($rol, ['Personal de Bienestar', 'Especialista', 'Estudiante', 'Administrador'], true);
     }
 
     public function view(Usuario $user, Cita $cita): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
 
-        if ($rol === 'Personal de Bienestar') {
+        if ($rol === 'Administrador' || $rol === 'Personal de Bienestar') {
             return true;
         }
 
@@ -106,6 +98,15 @@ class CitaPolicy
             && $user->especialista
             && $cita->horario
             && $cita->horario->id_especialista === $user->especialista->id_especialista;
+    }
+
+    /**
+     * Registrar nuevo horario disponible para citas (P3)
+     */
+    public function crearHorario(Usuario $user): bool
+    {
+        $rol = $user->rol ? $user->rol->nombre : '';
+        return in_array($rol, ['Personal de Bienestar', 'Especialista'], true);
     }
 
     /**

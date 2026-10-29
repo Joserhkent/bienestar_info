@@ -80,6 +80,8 @@ class CitaController extends Controller
      */
     public function store(StoreCitaRequest $request)
     {
+        $this->authorize('agendar', Cita::class);
+
         $usuario = $request->user();
         $estudiante = $usuario->estudiante;
 
@@ -129,6 +131,8 @@ class CitaController extends Controller
      */
     public function cancelar(CancelarCitaRequest $request, Cita $cita)
     {
+        $this->authorize('cancelar', $cita);
+
         $this->citaService->cancelarCita(
             $cita,
             $request->user(),
@@ -179,6 +183,8 @@ class CitaController extends Controller
      */
     public function guardarHorario(StoreHorarioRequest $request)
     {
+        $this->authorize('crearHorario', Cita::class);
+
         $usuario = $request->user();
         $idEspecialista = $request->input('id_especialista');
 

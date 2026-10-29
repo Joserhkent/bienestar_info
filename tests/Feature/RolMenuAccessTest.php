@@ -152,4 +152,94 @@ class RolMenuAccessTest extends TestCase
         $this->actingAs($this->docente)->get('/bienestar/reportes')->assertStatus(403);
         $this->actingAs($this->docente)->get('/bienestar/reportes/exportar-csv')->assertStatus(403);
     }
+
+    /**
+     * Test: Administrador tiene supervisión de SOLO LECTURA y recibe 403 en todas las rutas de escritura.
+     */
+    public function test_admin_is_strictly_read_only_and_forbidden_on_all_write_actions(): void
+    {
+        $caso = CasoBienestar::first();
+        $solicitud = SolicitudApoyo::first();
+        $cita = Cita::first();
+        $derivacion = Derivacion::first();
+
+        // 1. Escritura en Casos -> 403
+        $this->actingAs($this->admin)->get('/bienestar/casos/crear')->assertStatus(403);
+        $this->actingAs($this->admin)->post('/bienestar/casos', [
+            'id_estudiante' => 1,
+            'id_tipo_caso' => 1,
+            'descripcion' => 'Intento de registro admin',
+            'prioridad' => 'media',
+        ])->assertStatus(403);
+
+        if ($caso) {
+            $this->actingAs($this->admin)->post("/bienestar/casos/{$caso->id_caso}/cambiar-estado", [
+                'estado_nuevo' => 'cerrado',
+                'comentario' => 'Intento admin',
+            ])->assertStatus(403);
+        }
+
+        // 2. Escritura en Solicitudes -> 403
+        $this->actingAs($this->admin)->get('/bienestar/solicitudes/crear')->assertStatus(403);
+        $this->actingAs($this->admin)->post('/bienestar/solicitudes', [
+            'tipo_apoyo' => 'comedor',
+            'motivo' => 'Intento admin',
+        ])->assertStatus(403);
+
+        if ($solicitud) {
+            $this->actingAs($this->admin)->post("/bienestar/solicitudes/{$solicitud->id_solicitud}/dictaminar", [
+                'estado' => 'aprobada',
+                'observacion' => 'Dictamen admin',
+            ])->assertStatus(403);
+        }
+
+        // 3. Escritura en Citas y Horarios -> 403
+        $this->actingAs($this->admin)->get('/bienestar/citas/crear')->assertStatus(403);
+        $this->actingAs($this->admin)->post('/bienestar/citas', [
+            'id_horario' => 1,
+            'tipo_cita' => 'psicologica',
+            'motivo' => 'Intento cita admin',
+        ])->assertStatus(403);
+
+        if ($cita) {
+            $this->actingAs($this->admin)->post("/bienestar/citas/{$cita->id_cita}/confirmar")->assertStatus(403);
+            $this->actingAs($this->admin)->post("/bienestar/citas/{$cita->id_cita}/cancelar", [
+                'motivo_cancelacion' => 'Cancelación admin',
+            ])->assertStatus(403);
+            $this->actingAs($this->admin)->post("/bienestar/citas/{$cita->id_cita}/atender")->assertStatus(403);
+        }
+
+        $this->actingAs($this->admin)->get('/bienestar/horarios')->assertStatus(403);
+        $this->actingAs($this->admin)->post('/bienestar/horarios', [
+            'fecha' => now()->addDays(2)->toDateString(),
+            'hora_inicio' => '10:00',
+            'hora_fin' => '11:00',
+            'id_especialista' => 1,
+        ])->assertStatus(403);
+
+        // 4. Escritura en Derivaciones -> 403
+        $this->actingAs($this->admin)->get('/bienestar/derivaciones/crear')->assertStatus(403);
+        $this->actingAs($this->admin)->post('/bienestar/derivaciones', [
+            'id_caso' => 1,
+            'id_especialista' => 1,
+            'motivo' => 'Derivacion admin',
+        ])->assertStatus(403);
+
+        if ($derivacion) {
+            $this->actingAs($this->admin)->post("/bienestar/derivaciones/{$derivacion->id_derivacion}/aceptar")->assertStatus(403);
+            $this->actingAs($this->admin)->post("/bienestar/derivaciones/{$derivacion->id_derivacion}/seguimientos", [
+                'nota_avance' => 'Nota admin',
+            ])->assertStatus(403);
+            $this->actingAs($this->admin)->post("/bienestar/derivaciones/{$derivacion->id_derivacion}/finalizar", [
+                'informe_conclusion' => 'Informe de conclusion del caso por admin.',
+            ])->assertStatus(403);
+
+            // Verificación: Administrador puede ver la derivación pero NO sus notas clínicas
+            $response = $this->actingAs($this->admin)->get("/bienestar/derivaciones/{$derivacion->id_derivacion}");
+            $response->assertStatus(200);
+            $response->assertSee('Historial de sesiones');
+            $response->assertSee('Contenido reservado para el especialista tratante');
+            $response->assertDontSee('Nota de evolución:');
+        }
+    }
 }

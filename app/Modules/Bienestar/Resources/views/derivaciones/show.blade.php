@@ -161,15 +161,21 @@
                                 <span class="fw-semibold text-dark">Sesión de atención</span>
                                 <small class="text-muted">{{ $seg->fecha_sesion->format('d/m/Y H:i') }}</small>
                             </div>
-                            <div class="mb-2">
-                                <span class="text-muted small d-block">Nota de evolución (desencriptada):</span>
-                                <p class="mb-0 text-dark small" style="white-space: pre-line;">{{ $seg->nota_avance }}</p>
-                            </div>
-                            @if($seg->acuerdos)
-                                <div class="p-2 bg-light rounded border text-muted small mb-2">
-                                    <strong class="text-dark">Acuerdos:</strong> {{ $seg->acuerdos }}
+                            @can('verNotasClinicas', $derivacion)
+                                <div class="mb-2">
+                                    <span class="text-muted small d-block">Nota de evolución:</span>
+                                    <p class="mb-0 text-dark small" style="white-space: pre-line;">{{ $seg->nota_avance }}</p>
                                 </div>
-                            @endif
+                                @if($seg->acuerdos)
+                                    <div class="p-2 bg-light rounded border text-muted small mb-2">
+                                        <strong class="text-dark">Acuerdos:</strong> {{ $seg->acuerdos }}
+                                    </div>
+                                @endif
+                            @else
+                                <div class="p-2 bg-light rounded border text-muted small mb-2">
+                                    <em>Contenido reservado para el especialista tratante y personal de bienestar.</em>
+                                </div>
+                            @endcan
                             @if($seg->proxima_fecha)
                                 <span class="text-muted small">
                                     Próxima sesión prevista: {{ $seg->proxima_fecha->format('d/m/Y') }}

@@ -26,11 +26,6 @@ class CheckRole
         $usuario = Auth::user();
         $rolUsuario = $usuario->rol ? $usuario->rol->nombre : null;
 
-        // Si el usuario es Administrador, tiene acceso de auditoría a la plataforma
-        if ($rolUsuario === 'Administrador') {
-            return $next($request);
-        }
-
         // Si se especificaron roles y el rol del usuario no coincide
         if (!empty($roles) && !in_array($rolUsuario, $roles, true)) {
             abort(403, 'Acceso no autorizado a este recurso.');

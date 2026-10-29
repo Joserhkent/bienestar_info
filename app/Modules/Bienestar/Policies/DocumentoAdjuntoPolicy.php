@@ -10,14 +10,6 @@ class DocumentoAdjuntoPolicy
 {
     use HandlesAuthorization;
 
-    public function before(Usuario $user, string $ability): ?bool
-    {
-        if ($user->rol && $user->rol->nombre === 'Administrador') {
-            return true;
-        }
-        return null;
-    }
-
     /**
      * Determina si el usuario puede descargar o visualizar el documento.
      */
@@ -25,8 +17,8 @@ class DocumentoAdjuntoPolicy
     {
         $rol = $user->rol ? $user->rol->nombre : '';
 
-        // Personal de Bienestar puede ver todos los sustentos adjuntos
-        if ($rol === 'Personal de Bienestar') {
+        // Personal de Bienestar y Administrador pueden ver todos los sustentos adjuntos
+        if ($rol === 'Personal de Bienestar' || $rol === 'Administrador') {
             return true;
         }
 

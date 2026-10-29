@@ -77,6 +77,8 @@ class DerivacionController extends Controller
      */
     public function store(StoreDerivacionRequest $request)
     {
+        $this->authorize('create', Derivacion::class);
+
         $derivacion = $this->derivacionService->derivarCaso(
             $request->validated(),
             $request->user()

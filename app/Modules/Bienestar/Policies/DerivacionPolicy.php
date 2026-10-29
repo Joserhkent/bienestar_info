@@ -10,14 +10,6 @@ class DerivacionPolicy
 {
     use HandlesAuthorization;
 
-    public function before(Usuario $user, string $ability): ?bool
-    {
-        if ($user->rol && $user->rol->nombre === 'Administrador') {
-            return true;
-        }
-        return null;
-    }
-
     public function viewAny(Usuario $user): bool
     {
         $rol = $user->rol ? $user->rol->nombre : '';
@@ -28,7 +20,7 @@ class DerivacionPolicy
     {
         $rol = $user->rol ? $user->rol->nombre : '';
 
-        if ($rol === 'Personal de Bienestar') {
+        if ($rol === 'Administrador' || $rol === 'Personal de Bienestar') {
             return true;
         }
 
@@ -40,11 +32,30 @@ class DerivacionPolicy
     }
 
     /**
-     * Derivar caso a especialista: Personal de Bienestar
+     * Ver notas clínicas confidenciales y acuerdos: Solo especialista asignado y Personal de Bienestar.
+     * El Administrador solo ve fechas y estado (supervisión institucional).
+     */
+    public function verNotasClinicas(Usuario $user, Derivacion $derivacion): bool
+    {
+        $rol = $user->rol ? $user->rol->nombre : '';
+
+        if ($rol === 'Especialista' && $user->especialista) {
+            return $derivacion->id_especialista === $user->especialista->id_especialista;
+        }
+
+        if ($rol === 'Personal de Bienestar') {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Derivar caso a especialista: Exclusivo de Personal de Bienestar
      */
     public function create(Usuario $user): bool
     {
-        return $user->rol && in_array($user->rol->nombre, ['Personal de Bienestar', 'Administrador'], true);
+        return $user->rol && $user->rol->nombre === 'Personal de Bienestar';
     }
 
     /**
