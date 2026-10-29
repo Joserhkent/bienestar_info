@@ -3,10 +3,13 @@
 namespace App\Modules\Bienestar\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Bienestar\Http\Requests\GuardarCondicionEstudianteRequest;
 use App\Modules\Bienestar\Http\Requests\GuardarPerfilSocioeconomicoRequest;
 use App\Modules\Bienestar\Http\Requests\StoreEstudianteRequest;
 use App\Modules\Bienestar\Http\Requests\UpdateEstudianteRequest;
 use App\Modules\Bienestar\Models\Estudiante;
+use App\Modules\Bienestar\Models\TipoCondicion;
+use App\Modules\Bienestar\Services\CondicionEstudianteService;
 use App\Modules\Bienestar\Services\EstudianteService;
 use App\Modules\Bienestar\Services\PerfilSocioeconomicoService;
 use Illuminate\Http\RedirectResponse;
@@ -84,7 +87,9 @@ class EstudianteController extends Controller
             abort(404, 'Estudiante no encontrado.');
         }
 
-        return view('bienestar::estudiantes.show', compact('estudiante'));
+        $tiposCondicionCatalogo = TipoCondicion::orderBy('nombre')->get();
+
+        return view('bienestar::estudiantes.show', compact('estudiante', 'tiposCondicionCatalogo'));
     }
 
     /**
@@ -145,5 +150,47 @@ class EstudianteController extends Controller
 
         return redirect()->route('bienestar.estudiantes.show', $estudiante->id_estudiante)
             ->with('success', 'Perfil socioeconómico guardado correctamente.');
+    }
+
+    /**
+     * Asigna o actualiza una condición de inclusión para el estudiante (Fase C).
+     */
+    public function guardarCondicion(GuardarCondicionEstudianteRequest $request, int $id, CondicionEstudianteService $service): RedirectResponse
+    {
+        $estudiante = Estudiante::find($id);
+
+        if (!$estudiante) {
+            abort(404, 'Estudiante no encontrado.');
+        }
+
+        if ($request->user()->cannot('gestionarCondicion', $estudiante)) {
+            return back()->with('warning', 'No tiene permisos para modificar condiciones de inclusión.');
+        }
+
+        $service->asignarOActualizar($estudiante, $request->validated());
+
+        return redirect()->route('bienestar.estudiantes.show', $estudiante->id_estudiante)
+            ->with('success', 'Condición de inclusión guardada correctamente.');
+    }
+
+    /**
+     * Elimina una condición de inclusión asignada al estudiante (Fase C).
+     */
+    public function eliminarCondicion(Request $request, int $id, int $idTipoCondicion, CondicionEstudianteService $service): RedirectResponse
+    {
+        $estudiante = Estudiante::find($id);
+
+        if (!$estudiante) {
+            abort(404, 'Estudiante no encontrado.');
+        }
+
+        if ($request->user()->cannot('gestionarCondicion', $estudiante)) {
+            return back()->with('warning', 'No tiene permisos para modificar condiciones de inclusión.');
+        }
+
+        $service->eliminarCondicion($estudiante, $idTipoCondicion);
+
+        return redirect()->route('bienestar.estudiantes.show', $estudiante->id_estudiante)
+            ->with('success', 'Condición removida del expediente del estudiante.');
     }
 }

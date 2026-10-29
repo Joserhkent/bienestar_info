@@ -70,6 +70,24 @@ class EstudiantePolicy
     }
 
     /**
+     * Asignar o remover condiciones de inclusión:
+     * Exclusivo para Personal de Bienestar.
+     */
+    public function gestionarCondicion(Usuario $user, Estudiante $estudiante): bool
+    {
+        return $user->rol?->nombre === 'Personal de Bienestar';
+    }
+
+    /**
+     * Ver pauta pedagógica dentro de la ficha de estudiante:
+     * Exclusivo para Personal de Bienestar. El Administrador NO la ve.
+     */
+    public function verPautaPedagogica(Usuario $user, Estudiante $estudiante): bool
+    {
+        return $user->rol?->nombre === 'Personal de Bienestar';
+    }
+
+    /**
      * Eliminación deshabilitada por integridad y auditoría.
      */
     public function delete(Usuario $user, Estudiante $estudiante): bool
